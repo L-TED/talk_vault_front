@@ -3,8 +3,9 @@ export interface User {
   id: string;
   email: string;
   password: string;
-  profile_image?: string;
-  created_at: Date;
+  profileImageUrl?: string;
+  refreshToken?: string;
+  createdAt: Date;
 }
 
 // 로그인 요청
@@ -17,17 +18,17 @@ export interface LoginRequest {
 export interface SignupRequest {
   email: string;
   password: string;
-  profile_image?: File;
+  profileImage?: File;
 }
 
 // 로그인 응답
 export interface LoginResponse {
   token: string;
-  user: Omit<User, "password">;
+  user: Omit<User, "password" | "refreshToken">;
 }
 
 // 회원가입 응답
 export interface SignupResponse {
   token: string;
-  user: Omit<User, "password">;
+  user: Omit<User, "password" | "refreshToken">;
 }

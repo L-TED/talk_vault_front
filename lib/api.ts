@@ -1,22 +1,18 @@
-import axios from 'axios';
+import axios from "axios";
 import type {
   LoginRequest,
   LoginResponse,
   SignupRequest,
   SignupResponse,
-} from '@/types/auth.types';
-import type {
-  FileUploadRequest,
-  FileUploadResponse,
-  History,
-} from '@/types/upload.types';
+} from "@/types/auth.types";
+import type { FileUploadRequest, FileUploadResponse, History } from "@/types/upload.types";
 
 // Client용 Axios 인스턴스 (withCredentials)
 const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000",
   withCredentials: true,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
@@ -28,12 +24,12 @@ export const authApi = {
     return new Promise((resolve) => {
       setTimeout(() => {
         resolve({
-          token: 'mock-jwt-token-12345',
+          token: "mock-jwt-token-12345",
           user: {
-            id: '123e4567-e89b-12d3-a456-426614174000',
+            id: "123e4567-e89b-12d3-a456-426614174000",
             email: data.email,
-            profile_image: undefined,
-            created_at: new Date(),
+            profileImageUrl: undefined,
+            createdAt: new Date(),
           },
         });
       }, 1000);
@@ -45,12 +41,12 @@ export const authApi = {
     return new Promise((resolve) => {
       setTimeout(() => {
         resolve({
-          token: 'mock-jwt-token-67890',
+          token: "mock-jwt-token-67890",
           user: {
-            id: '123e4567-e89b-12d3-a456-426614174001',
+            id: "123e4567-e89b-12d3-a456-426614174001",
             email: data.email,
-            profile_image: data.profile_image ? 'mock-profile-url.jpg' : undefined,
-            created_at: new Date(),
+            profileImageUrl: data.profileImage ? "mock-profile-url.jpg" : undefined,
+            createdAt: new Date(),
           },
         });
       }, 1000);
@@ -74,13 +70,15 @@ export const uploadApi = {
       setTimeout(() => {
         resolve({
           history: {
-            id: '456e4567-e89b-12d3-a456-426614174002',
-            user_id: '123e4567-e89b-12d3-a456-426614174000',
-            title: data.title || '제목 없음',
-            source: data.source,
-            file_type: data.file_type,
-            file_path: 'mock-file-path.pdf',
-            created_at: new Date(),
+            id: "456e4567-e89b-12d3-a456-426614174002",
+            originalFileName: data.file.name,
+            savedFileName: "saved-" + data.file.name,
+            filePath: "uploads/saved-" + data.file.name,
+            pdfPath: "uploads/saved-" + data.file.name + ".pdf",
+            excelPath: "uploads/saved-" + data.file.name + ".xlsx",
+            fileSize: data.file.size,
+            userId: "123e4567-e89b-12d3-a456-426614174000",
+            createdAt: new Date(),
           },
         });
       }, 1000);
@@ -93,22 +91,26 @@ export const uploadApi = {
       setTimeout(() => {
         resolve([
           {
-            id: '456e4567-e89b-12d3-a456-426614174002',
-            user_id: '123e4567-e89b-12d3-a456-426614174000',
-            title: '카카오톡 대화 변환',
-            source: 'kakao',
-            file_type: 'pdf',
-            file_path: 'mock-file-1.pdf',
-            created_at: new Date('2025-12-29'),
+            id: "456e4567-e89b-12d3-a456-426614174002",
+            originalFileName: "kakao-chat.txt",
+            savedFileName: "saved-kakao-chat.txt",
+            filePath: "uploads/saved-kakao-chat.txt",
+            pdfPath: "uploads/saved-kakao-chat.pdf",
+            excelPath: undefined,
+            fileSize: 1024000,
+            userId: "123e4567-e89b-12d3-a456-426614174000",
+            createdAt: new Date("2025-12-29"),
           },
           {
-            id: '456e4567-e89b-12d3-a456-426614174003',
-            user_id: '123e4567-e89b-12d3-a456-426614174000',
-            title: '슬랙 대화 변환',
-            source: 'slack',
-            file_type: 'excel',
-            file_path: 'mock-file-2.xlsx',
-            created_at: new Date('2025-12-28'),
+            id: "456e4567-e89b-12d3-a456-426614174003",
+            originalFileName: "slack-chat.txt",
+            savedFileName: "saved-slack-chat.txt",
+            filePath: "uploads/saved-slack-chat.txt",
+            pdfPath: undefined,
+            excelPath: "uploads/saved-slack-chat.xlsx",
+            fileSize: 2048000,
+            userId: "123e4567-e89b-12d3-a456-426614174000",
+            createdAt: new Date("2025-12-28"),
           },
         ]);
       }, 1000);
@@ -121,12 +123,14 @@ export const uploadApi = {
       setTimeout(() => {
         resolve({
           id: id,
-          user_id: '123e4567-e89b-12d3-a456-426614174000',
-          title: '카카오톡 대화 변환',
-          source: 'kakao',
-          file_type: 'pdf',
-          file_path: 'mock-file-1.pdf',
-          created_at: new Date('2025-12-29'),
+          originalFileName: "kakao-chat.txt",
+          savedFileName: "saved-kakao-chat.txt",
+          filePath: "uploads/saved-kakao-chat.txt",
+          pdfPath: "uploads/saved-kakao-chat.pdf",
+          excelPath: undefined,
+          fileSize: 1024000,
+          userId: "123e4567-e89b-12d3-a456-426614174000",
+          createdAt: new Date("2025-12-29"),
         });
       }, 1000);
     });
@@ -137,7 +141,7 @@ export const uploadApi = {
     return new Promise((resolve) => {
       setTimeout(() => {
         // Mock Blob 데이터
-        const blob = new Blob(['Mock file content'], { type: 'application/pdf' });
+        const blob = new Blob(["Mock file content"], { type: "application/pdf" });
         resolve(blob);
       }, 1000);
     });
@@ -145,3 +149,54 @@ export const uploadApi = {
 };
 
 export default apiClient;
+/*
+User Entity
+@PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column({ unique: true })
+  email: string;
+
+  @Column()
+  password: string;
+
+  @Column({ nullable: true })
+  profileImageUrl: string;
+
+  @Column({ nullable: true })
+  refreshToken: string;
+
+  @CreateDateColumn()
+  createdAt: Date;
+History Entity
+@PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column()
+  originalFileName: string;
+
+  @Column()
+  savedFileName: string;
+
+  @Column()
+  filePath: string;
+
+  @Column({ nullable: true })
+  pdfPath: string;
+
+  @Column({ nullable: true })
+  excelPath: string;
+
+  @Column()
+  fileSize: number;
+
+  @Column({ type: 'uuid' })
+  userId: string;
+
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'userId' })
+  user: User;
+
+  @CreateDateColumn()
+  createdAt: Date;
+*/
