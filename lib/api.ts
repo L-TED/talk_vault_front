@@ -8,7 +8,7 @@ import type {
 import type { FileUploadRequest, FileUploadResponse, History } from "@/types/upload.types";
 
 // Client용 Axios 인스턴스 (withCredentials)
-export const apiClient = axios.create({
+const apiClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000",
   withCredentials: true,
   headers: {
@@ -149,6 +149,3 @@ export const uploadApi = {
 };
 
 export default apiClient;
-/*
-
-*/
