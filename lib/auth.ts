@@ -1,40 +1,34 @@
-// Access Token 관리
+// Access Token 관리 (메모리 또는 상태로만 관리)
+// Refresh Token은 httpOnly 쿠키로 백엔드에서 자동 관리
 
-const TOKEN_KEY = "access_token";
+let accessToken: string | null = null;
 
 /**
- * 로컬 스토리지에 액세스 토큰 저장
+ * 메모리에 액세스 토큰 저장
  */
 export const setAccessToken = (token: string): void => {
-  if (typeof window !== "undefined") {
-    localStorage.setItem(TOKEN_KEY, token);
-  }
+  accessToken = token;
 };
 
 /**
- * 로컬 스토리지에서 액세스 토큰 가져오기
+ * 메모리에서 액세스 토큰 가져오기
  */
 export const getAccessToken = (): string | null => {
-  if (typeof window !== "undefined") {
-    return localStorage.getItem(TOKEN_KEY);
-  }
-  return null;
+  return accessToken;
 };
 
 /**
- * 로컬 스토리지에서 액세스 토큰 삭제
+ * 메모리에서 액세스 토큰 삭제
  */
 export const removeAccessToken = (): void => {
-  if (typeof window !== "undefined") {
-    localStorage.removeItem(TOKEN_KEY);
-  }
+  accessToken = null;
 };
 
 /**
  * 액세스 토큰 존재 여부 확인
  */
 export const hasAccessToken = (): boolean => {
-  return !!getAccessToken();
+  return !!accessToken;
 };
 
 /**

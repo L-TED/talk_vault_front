@@ -6,6 +6,7 @@ import type {
   SignupResponse,
 } from "@/types/auth.types";
 import type { FileUploadRequest, FileUploadResponse, History } from "@/types/upload.types";
+import { getAccessToken, setAccessToken, removeAccessToken } from "./auth";
 
 // Client용 Axios 인스턴스 (withCredentials)
 const apiClient = axios.create({
@@ -16,135 +17,179 @@ const apiClient = axios.create({
   },
 });
 
-// Mock API 함수들 (추후 실제 API로 교체)
+// Request 인터셉터: Access Token 자동 추가
+apiClient.interceptors.request.use(
+  (config) => {
+    const token = getAccessToken();
+    if (token) {
+      config.headers = config.headers || {};
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
+// Response 인터셉터: 401 에러 시 토큰 갱신
+apiClient.interceptors.response.use(
+  (response: any) => {
+    return response.data;
+  },
+  async (error: any) => {
+    const originalRequest = error.config;
+
+    // 401 에러이고 재시도하지 않은 경우
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      try {
+        // Refresh Token으로 새 Access Token 발급
+        const response = await axios.post<{ accessToken: string }>(
+          `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh`,
+          {},
+          { withCredentials: true }
+        );
+
+        const newAccessToken = response.data.accessToken;
+        setAccessToken(newAccessToken);
+
+        // 실패한 요청 재시도
+        originalRequest.headers = originalRequest.headers || {};
+        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+        return apiClient(originalRequest);
+      } catch (refreshError) {
+        // Refresh 실패 시 로그아웃 처리
+        removeAccessToken();
+        if (typeof window !== "undefined") {
+          window.location.href = "/login";
+        }
+        return Promise.reject(refreshError);
+      }
+    }
+
+    const errorMessage = error.response?.data?.message || "오류가 발생했습니다";
+    return Promise.reject(new Error(errorMessage));
+  }
+);
+
+// Auth API
 export const authApi = {
-  // 로그인
+  // 로그인 - POST /auth/login
   login: async (data: LoginRequest): Promise<LoginResponse> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          token: "mock-jwt-token-12345",
-          user: {
-            id: "123e4567-e89b-12d3-a456-426614174000",
-            email: data.email,
-            profileImageUrl: undefined,
-            createdAt: new Date(),
-          },
-        });
-      }, 1000);
-    });
+    const response = (await apiClient.post<LoginResponse>(
+      "/auth/login",
+      data
+    )) as any as LoginResponse;
+
+    // Access Token 저장
+    if (response.accessToken) {
+      setAccessToken(response.accessToken);
+    }
+
+    return response;
   },
 
-  // 회원가입
+  // 회원가입 - POST /auth/signup
   signup: async (data: SignupRequest): Promise<SignupResponse> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          token: "mock-jwt-token-67890",
-          user: {
-            id: "123e4567-e89b-12d3-a456-426614174001",
-            email: data.email,
-            profileImageUrl: data.profileImage ? "mock-profile-url.jpg" : undefined,
-            createdAt: new Date(),
-          },
-        });
-      }, 1000);
-    });
+    const formData = new FormData();
+    formData.append("email", data.email);
+    formData.append("password", data.password);
+    if (data.profileImage) {
+      formData.append("profileImage", data.profileImage);
+    }
+
+    const response = (await apiClient.post<SignupResponse>("/auth/signup", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    })) as any as SignupResponse;
+
+    // Access Token 저장
+    if (response.accessToken) {
+      setAccessToken(response.accessToken);
+    }
+
+    return response;
   },
 
-  // 로그아웃
+  // 로그아웃 - POST /auth/logout
   logout: async (): Promise<void> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve();
-      }, 500);
-    });
+    await apiClient.post<void>("/auth/logout");
+    removeAccessToken();
+  },
+
+  // 토큰 갱신 - POST /auth/refresh
+  refresh: async (): Promise<{ accessToken: string }> => {
+    const response = (await apiClient.post<{ accessToken: string }>("/auth/refresh")) as any as {
+      accessToken: string;
+    };
+    if (response.accessToken) {
+      setAccessToken(response.accessToken);
+    }
+    return response;
   },
 };
 
+// Users API
+export const usersApi = {
+  // 유저 프로필 조회 - GET /users/:id
+  getUserById: async (id: string) => {
+    const response = await apiClient.get(`/users/${id}`);
+    return response;
+  },
+
+  // 유저 정보 수정 - PATCH /users/:id
+  updateUser: async (id: string, data: Partial<SignupRequest>) => {
+    const formData = new FormData();
+    if (data.email) formData.append("email", data.email);
+    if (data.password) formData.append("password", data.password);
+    if (data.profileImage) formData.append("profileImage", data.profileImage);
+
+    const response = await apiClient.patch(`/users/${id}`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return response;
+  },
+
+  // 유저 삭제 - DELETE /users/:id
+  deleteUser: async (id: string) => {
+    const response = await apiClient.delete(`/users/${id}`);
+    return response;
+  },
+};
+
+// Upload & History API
 export const uploadApi = {
-  // 파일 업로드
+  // 파일 업로드 - POST /upload
   uploadFile: async (data: FileUploadRequest): Promise<FileUploadResponse> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          history: {
-            id: "456e4567-e89b-12d3-a456-426614174002",
-            originalFileName: data.file.name,
-            savedFileName: "saved-" + data.file.name,
-            filePath: "uploads/saved-" + data.file.name,
-            pdfPath: "uploads/saved-" + data.file.name + ".pdf",
-            excelPath: "uploads/saved-" + data.file.name + ".xlsx",
-            fileSize: data.file.size,
-            userId: "123e4567-e89b-12d3-a456-426614174000",
-            createdAt: new Date(),
-          },
-        });
-      }, 1000);
-    });
+    const formData = new FormData();
+    formData.append("file", data.file);
+
+    const response = (await apiClient.post<FileUploadResponse>("/upload", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    })) as any as FileUploadResponse;
+    return response;
   },
 
-  // 히스토리 목록 조회
+  // 히스토리 목록 조회 - GET /histories
   getHistories: async (): Promise<History[]> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve([
-          {
-            id: "456e4567-e89b-12d3-a456-426614174002",
-            originalFileName: "kakao-chat.txt",
-            savedFileName: "saved-kakao-chat.txt",
-            filePath: "uploads/saved-kakao-chat.txt",
-            pdfPath: "uploads/saved-kakao-chat.pdf",
-            excelPath: undefined,
-            fileSize: 1024000,
-            userId: "123e4567-e89b-12d3-a456-426614174000",
-            createdAt: new Date("2025-12-29"),
-          },
-          {
-            id: "456e4567-e89b-12d3-a456-426614174003",
-            originalFileName: "slack-chat.txt",
-            savedFileName: "saved-slack-chat.txt",
-            filePath: "uploads/saved-slack-chat.txt",
-            pdfPath: undefined,
-            excelPath: "uploads/saved-slack-chat.xlsx",
-            fileSize: 2048000,
-            userId: "123e4567-e89b-12d3-a456-426614174000",
-            createdAt: new Date("2025-12-28"),
-          },
-        ]);
-      }, 1000);
-    });
+    const response = (await apiClient.get<History[]>("/histories")) as any as History[];
+    return response;
   },
 
-  // 특정 히스토리 조회
-  getHistoryById: async (id: string): Promise<History> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          id: id,
-          originalFileName: "kakao-chat.txt",
-          savedFileName: "saved-kakao-chat.txt",
-          filePath: "uploads/saved-kakao-chat.txt",
-          pdfPath: "uploads/saved-kakao-chat.pdf",
-          excelPath: undefined,
-          fileSize: 1024000,
-          userId: "123e4567-e89b-12d3-a456-426614174000",
-          createdAt: new Date("2025-12-29"),
-        });
-      }, 1000);
-    });
+  // 특정 히스토리 조회 (목록에서 필터링)
+  getHistoryById: async (id: string): Promise<History | null> => {
+    const histories = (await apiClient.get<History[]>("/histories")) as any as History[];
+    const history = histories.find((h: History) => h.id === id);
+    return history || null;
   },
 
-  // 파일 다운로드
+  // 파일 다운로드 - GET /histories/:id/download
   downloadFile: async (id: string): Promise<Blob> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        // Mock Blob 데이터
-        const blob = new Blob(["Mock file content"], { type: "application/pdf" });
-        resolve(blob);
-      }, 1000);
-    });
+    const response = (await apiClient.get<Blob>(`/histories/${id}/download`, {
+      responseType: "blob",
+    })) as any as Blob;
+    return response;
   },
 };
 

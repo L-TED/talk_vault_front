@@ -31,7 +31,7 @@ export const useLoginForm = () => {
       const response = await authApi.login(loginData);
 
       // 토큰 저장
-      setAccessToken(response.token);
+      setAccessToken(response.accessToken);
 
       // Zustand 스토어에 유저 정보 저장
       setUser(response.user);

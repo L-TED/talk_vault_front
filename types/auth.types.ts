@@ -23,12 +23,12 @@ export interface SignupRequest {
 
 // 로그인 응답
 export interface LoginResponse {
-  token: string;
+  accessToken: string;
   user: Omit<User, "password" | "refreshToken">;
 }
 
 // 회원가입 응답
 export interface SignupResponse {
-  token: string;
+  accessToken: string;
   user: Omit<User, "password" | "refreshToken">;
 }

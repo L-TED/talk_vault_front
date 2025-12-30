@@ -1,32 +1,28 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-// middleware.ts => proxy.ts로 파일명 변경
 export function proxy(request: NextRequest) {
-  const token = request.cookies.get("access_token")?.value;
+  // refreshToken 쿠키 확인 (백엔드에서 httpOnly로 설정)
+  const refreshToken = request.cookies.get("refreshToken");
   const { pathname } = request.nextUrl;
 
-  // 보호된 경로 - 토큰이 없으면 /login으로 리다이렉트
+  // 보호된 경로: 토큰 없으면 로그인으로 리다이렉트
   if (
-    pathname.startsWith("/upload") ||
-    pathname.startsWith("/result") ||
-    pathname.startsWith("/mypage")
+    (pathname.startsWith("/upload") ||
+      pathname.startsWith("/mypage") ||
+      pathname.startsWith("/home")) &&
+    !refreshToken
   ) {
-    if (!token) {
-      return NextResponse.redirect(new URL("/login", request.url));
-    }
+    return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  // 로그인 페이지 - 토큰이 있으면 /mypage로 리다이렉트
-  if (pathname.startsWith("/login")) {
-    if (token) {
-      return NextResponse.redirect(new URL("/mypage", request.url));
-    }
+  // 로그인 페이지: 토큰 있으면 홈으로 리다이렉트
+  if (pathname === "/login" && refreshToken) {
+    return NextResponse.redirect(new URL("/home", request.url));
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/upload/:path*", "/result/:path*", "/mypage/:path*", "/login"],
+  matcher: ["/upload/:path*", "/mypage/:path*", "/home/:path*", "/login"],
 };
