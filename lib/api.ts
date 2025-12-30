@@ -8,7 +8,7 @@ import type {
 import type { FileUploadRequest, FileUploadResponse, History } from "@/types/upload.types";
 
 // Client용 Axios 인스턴스 (withCredentials)
-const apiClient = axios.create({
+export const apiClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000",
   withCredentials: true,
   headers: {
@@ -150,53 +150,5 @@ export const uploadApi = {
 
 export default apiClient;
 /*
-User Entity
-@PrimaryGeneratedColumn('uuid')
-  id: string;
 
-  @Column({ unique: true })
-  email: string;
-
-  @Column()
-  password: string;
-
-  @Column({ nullable: true })
-  profileImageUrl: string;
-
-  @Column({ nullable: true })
-  refreshToken: string;
-
-  @CreateDateColumn()
-  createdAt: Date;
-History Entity
-@PrimaryGeneratedColumn('uuid')
-  id: string;
-
-  @Column()
-  originalFileName: string;
-
-  @Column()
-  savedFileName: string;
-
-  @Column()
-  filePath: string;
-
-  @Column({ nullable: true })
-  pdfPath: string;
-
-  @Column({ nullable: true })
-  excelPath: string;
-
-  @Column()
-  fileSize: number;
-
-  @Column({ type: 'uuid' })
-  userId: string;
-
-  @ManyToOne(() => User)
-  @JoinColumn({ name: 'userId' })
-  user: User;
-
-  @CreateDateColumn()
-  createdAt: Date;
 */

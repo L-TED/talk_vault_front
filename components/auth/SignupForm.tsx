@@ -1,35 +1,45 @@
 "use client";
 
-import { useState } from "react";
 import Button from "@/components/common/Button";
+import { useSignupForm } from "@/hooks/useSignupForm";
 
 const SignupForm = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const {
+    // useHooks
+    email,
+    password,
+    confirmPassword,
+    showPassword,
+    showConfirmPassword,
+    isLoading,
+    error,
+    // 상태 변경 함수
+    setEmail,
+    setPassword,
+    setConfirmPassword,
+    setProfileImage,
+    setShowPassword,
+    setShowConfirmPassword,
+    // 유효성 상태
+    isEmailValid,
+    isEmailInvalid,
+    hasValidLength,
+    hasEnglish,
+    hasNumber,
+    hasSpecialChar,
+    hasOnlyAllowedChars,
+    isPasswordTouched,
+    isPasswordMatch,
+    isPasswordMismatch,
+    // 액션
+    handleSignup,
+  } = useSignupForm();
 
-  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-
-  const isEmailValid = email.length > 0 && emailRegex.test(email);
-  const isEmailInvalid = email.length > 0 && !emailRegex.test(email);
-
-  // 비밀번호 각 조건별 검증
-
-  const hasValidLength = password.length >= 8 && password.length <= 20;
-  const hasEnglish = /[a-zA-Z]/.test(password);
-  const hasNumber = /\d/.test(password);
-  const hasSpecialChar = /[@$!%*#?&]/.test(password);
-  const hasOnlyAllowedChars = /^[a-zA-Z0-9@$!%*#?&]*$/.test(password);
-
-  const isPasswordTouched = password.length > 0;
-
-  const isValidPassword =
-    hasValidLength && hasEnglish && hasNumber && hasSpecialChar && hasOnlyAllowedChars;
-
-  const isPasswordMatch = confirmPassword.length > 0 && password === confirmPassword;
-  const isPasswordMismatch = confirmPassword.length > 0 && password !== confirmPassword;
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setProfileImage(e.target.files[0]);
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-white">
@@ -39,6 +49,12 @@ const SignupForm = () => {
         </div>
 
         <div className="space-y-5">
+          {error && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+              {error}
+            </div>
+          )}
+
           <div>
             <input
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -183,15 +199,19 @@ const SignupForm = () => {
             <input
               type="file"
               accept="image/*"
+              onChange={handleFileChange}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
             />
           </div>
 
           <div>
-            <Button
-              style="w-full px-4 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
-              text="회원가입"
-            />
+            <button
+              onClick={handleSignup}
+              disabled={isLoading}
+              className="w-full px-4 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+            >
+              {isLoading ? "회원가입 중..." : "회원가입"}
+            </button>
           </div>
 
           <div>
