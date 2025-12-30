@@ -4,6 +4,7 @@ import { authApi } from "@/lib/api";
 import { useAuthStore } from "@/store/auth.store";
 import { setAccessToken } from "@/lib/auth";
 import type { SignupRequest } from "@/types/auth.types";
+import { toast } from "react-toastify";
 
 export const useSignupForm = () => {
   const router = useRouter();
@@ -40,7 +41,9 @@ export const useSignupForm = () => {
 
   const handleSignup = async () => {
     if (!isFormValid) {
-      setError("모든 필드를 올바르게 입력해주세요.");
+      const errorMsg = "모든 필드를 올바르게 입력해주세요.";
+      setError(errorMsg);
+      toast.error(errorMsg);
       return;
     }
 
@@ -54,7 +57,15 @@ export const useSignupForm = () => {
         profileImage: profileImage || undefined,
       };
 
+      console.log("🚀 회원가입 요청 데이터:", {
+        email,
+        password,
+        profileImage: profileImage?.name,
+      });
+
       const response = await authApi.signup(signupData);
+
+      console.log("✅ 회원가입 응답:", response);
 
       // 토큰 저장
       setAccessToken(response.accessToken);
@@ -62,11 +73,18 @@ export const useSignupForm = () => {
       // Zustand 스토어에 유저 정보 저장
       setUser(response.user);
 
+      toast.success("회원가입에 성공했습니다!");
+
       // /mypage로 이동
       router.push("/mypage");
-    } catch (err) {
-      setError("회원가입에 실패했습니다. 다시 시도해주세요.");
-      console.error("Signup error:", err);
+    } catch (err: any) {
+      console.error("❌ 회원가입 에러:", err);
+      console.error("에러 상세:", err.response?.data || err.message);
+
+      const errorMsg =
+        err.response?.data?.message || err.message || "회원가입에 실패했습니다. 다시 시도해주세요.";
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setIsLoading(false);
     }

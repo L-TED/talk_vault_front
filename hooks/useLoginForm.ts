@@ -4,6 +4,7 @@ import { authApi } from "@/lib/api";
 import { useAuthStore } from "@/store/auth.store";
 import { setAccessToken } from "@/lib/auth";
 import type { LoginRequest } from "@/types/auth.types";
+import { toast } from "react-toastify";
 
 // 로그인 기능을 수행하는 useAuth 커스텀 훅 생성
 // 로그인 성공 시 store/auth.ts에 유저 정보를 저장하고 /mypage로 이동하는 로직
@@ -19,7 +20,9 @@ export const useLoginForm = () => {
 
   const handleLogin = async () => {
     if (!email || !password) {
-      setError("이메일과 비밀번호를 입력해주세요.");
+      const errorMsg = "이메일과 비밀번호를 입력해주세요.";
+      setError(errorMsg);
+      toast.error(errorMsg);
       return;
     }
 
@@ -36,10 +39,14 @@ export const useLoginForm = () => {
       // Zustand 스토어에 유저 정보 저장
       setUser(response.user);
 
+      toast.success("로그인에 성공했습니다!");
+
       // /mypage로 이동
       router.push("/mypage");
     } catch (err) {
-      setError("로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.");
+      const errorMsg = "로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.";
+      setError(errorMsg);
+      toast.error(errorMsg);
       console.error("Login error:", err);
     } finally {
       setIsLoading(false);

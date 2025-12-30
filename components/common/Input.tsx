@@ -4,9 +4,11 @@ interface InputProps {
   type?: string;
   pattern?: string;
   required?: boolean;
+  value?: string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-const Input = ({ style, text, type = "text", pattern, required }: InputProps) => {
+const Input = ({ style, text, type = "text", pattern, required, value, onChange }: InputProps) => {
   return (
     <input
       className={style}
@@ -14,6 +16,8 @@ const Input = ({ style, text, type = "text", pattern, required }: InputProps) =>
       type={type}
       pattern={pattern}
       required={required}
+      value={value}
+      onChange={onChange}
     ></input>
   );
 };
