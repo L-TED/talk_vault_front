@@ -6,6 +6,7 @@ export function middleware(request: NextRequest) {
   const refreshToken = request.cookies.get("refreshToken");
   const { pathname } = request.nextUrl;
 
+<<<<<<< HEAD
   // 디버깅 로그 (개발 환경에서만)
   console.log("🔒 Middleware Check:", {
     pathname,
@@ -14,6 +15,8 @@ export function middleware(request: NextRequest) {
     cookieNames: allCookies.map((c) => c.name),
   });
 
+=======
+>>>>>>> parent of 09675a8 (deploy02)
   // 보호된 경로: 토큰 없으면 로그인으로 리다이렉트
   if (
     (pathname.startsWith("/upload") ||
@@ -21,8 +24,11 @@ export function middleware(request: NextRequest) {
       pathname.startsWith("/home")) &&
     !refreshToken
   ) {
+<<<<<<< HEAD
     console.warn("⚠️ No refreshToken cookie found, redirecting to /login");
     console.warn("Available cookies:", allCookies.map((c) => c.name).join(", "));
+=======
+>>>>>>> parent of 09675a8 (deploy02)
     return NextResponse.redirect(new URL("/login", request.url));
   }
 

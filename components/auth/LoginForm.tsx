@@ -2,7 +2,6 @@
 
 import Input from "@/components/common/Input";
 import Button from "@/components/common/Button";
-import CookieDebugger from "@/components/common/CookieDebugger";
 import { useLoginForm } from "@/hooks/useLoginForm";
 
 const LoginForm = () => {
@@ -10,9 +9,6 @@ const LoginForm = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-white">
-      {/* 쿠키 디버거 (개발용) */}
-      <CookieDebugger />
-
       <div className="w-full max-w-md px-8">
         <div className="text-center mb-10">
           <h1 className="text-3xl font-bold text-gray-800">로그인</h1>
