@@ -68,11 +68,11 @@ const Mypage = () => {
 
   const handleDownload = async (id: string) => {
     try {
-      const blob = await uploadApi.downloadFile(id);
+      const { blob, fileName } = await uploadApi.downloadFile(id);
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `history-${id}.xlsx`;
+      a.download = fileName || `history-${id}`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
@@ -101,7 +101,7 @@ const Mypage = () => {
               </button>
 
               {/* 프로필 이미지 */}
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-semibold overflow-hidden">
+              <div className="w-10 h-10 rounded-full bg-linear-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-semibold overflow-hidden">
                 {user?.profileImageUrl ? (
                   <img
                     src={user.profileImageUrl}

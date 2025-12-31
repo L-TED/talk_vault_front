@@ -89,6 +89,12 @@ apiClient.interceptors.response.use(
     } catch {
       // ignore debug failures
     }
+
+    // Some endpoints (e.g. file download) require full AxiosResponse to read headers.
+    if (response?.config && (response.config as any).rawResponse) {
+      return response;
+    }
+
     return response.data;
   },
   async (error: any) => {
@@ -114,8 +120,11 @@ apiClient.interceptors.response.use(
       try {
         console.log("[ApiDebug] refresh start");
         // Refresh Token으로 새 Access Token 발급
+        const refreshBaseUrl =
+          API_BASE_URL ||
+          (typeof apiClient.defaults.baseURL === "string" ? apiClient.defaults.baseURL : "");
         const response = await axios.post<{ accessToken: string }>(
-          `${API_BASE_URL}/auth/refresh`,
+          `${refreshBaseUrl}/auth/refresh`,
           {},
           { withCredentials: true }
         );
@@ -283,11 +292,38 @@ export const uploadApi = {
   },
 
   // 파일 다운로드 - GET /histories/:id/download
-  downloadFile: async (id: string): Promise<Blob> => {
-    const response = (await apiClient.get<Blob>(`/histories/${id}/download`, {
+  downloadFile: async (id: string): Promise<{ blob: Blob; fileName: string }> => {
+    const axiosResponse = (await apiClient.get(`/histories/${id}/download`, {
       responseType: "blob",
-    })) as any as Blob;
-    return response;
+      // custom flag handled by response interceptor
+      rawResponse: true,
+    } as any)) as any;
+
+    const blob = axiosResponse.data as Blob;
+
+    const contentDisposition: string | undefined =
+      axiosResponse?.headers?.["content-disposition"] ||
+      axiosResponse?.headers?.["Content-Disposition"];
+
+    let fileName = "download";
+    if (typeof contentDisposition === "string") {
+      // Examples:
+      // attachment; filename="foo.xlsx"
+      // attachment; filename=foo.xlsx
+      const match = contentDisposition.match(/filename\*?=([^;]+)/i);
+      if (match?.[1]) {
+        fileName = match[1].trim();
+        fileName = fileName.replace(/^UTF-8''/i, "");
+        fileName = fileName.replace(/^"|"$/g, "");
+        try {
+          fileName = decodeURIComponent(fileName);
+        } catch {
+          // ignore decoding errors
+        }
+      }
+    }
+
+    return { blob, fileName };
   },
 };
 

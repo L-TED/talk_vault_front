@@ -40,13 +40,13 @@ export const useHistory = () => {
   // 파일 다운로드
   const downloadFile = async (id: string, fileName: string) => {
     try {
-      const blob = await uploadApi.downloadFile(id);
+      const { blob, fileName: serverFileName } = await uploadApi.downloadFile(id);
 
       // Blob을 다운로드 가능한 URL로 변환
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = fileName;
+      link.download = serverFileName || fileName;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);

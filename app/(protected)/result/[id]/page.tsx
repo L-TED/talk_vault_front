@@ -91,11 +91,11 @@ export default function ResultPage({ params }: PageProps) {
 
   const handleDownload = async () => {
     try {
-      const blob = await uploadApi.downloadFile(historyId);
+      const { blob, fileName } = await uploadApi.downloadFile(historyId);
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = history?.savedFileName || `${baseName}.bin`;
+      link.download = fileName || history?.savedFileName || `${baseName}.bin`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
