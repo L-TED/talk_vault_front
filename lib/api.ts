@@ -39,6 +39,12 @@ const apiClient = axios.create({
 // Request 인터셉터: Access Token 자동 추가
 apiClient.interceptors.request.use(
   (config) => {
+    const token = getAccessToken();
+    if (token) {
+      config.headers = config.headers || {};
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
     // Debug: request overview (avoid logging bodies)
     try {
       const url = `${config.baseURL || ""}${config.url || ""}`;
@@ -53,11 +59,6 @@ apiClient.interceptors.request.use(
       // ignore debug failures
     }
 
-    const token = getAccessToken();
-    if (token) {
-      config.headers = config.headers || {};
-      config.headers.Authorization = `Bearer ${token}`;
-    }
     return config;
   },
   (error) => {
@@ -137,8 +138,14 @@ apiClient.interceptors.response.use(
       }
     }
 
-    const errorMessage = error.response?.data?.message || "오류가 발생했습니다";
-    return Promise.reject(new Error(errorMessage));
+    // Preserve AxiosError so callers can inspect status/config/response.
+    // Also normalize message when backend provides one.
+    const backendMessage = error?.response?.data?.message;
+    if (typeof backendMessage === "string" && backendMessage.trim().length > 0) {
+      error.message = backendMessage;
+    }
+
+    return Promise.reject(error);
   }
 );
 
@@ -222,6 +229,18 @@ export const uploadApi = {
   uploadFile: async (data: FileUploadRequest): Promise<FileUploadResponse> => {
     const formData = new FormData();
     formData.append("file", data.file);
+
+    try {
+      console.log("[UploadDebug] api uploadFile", {
+        baseURL: API_BASE_URL || "https://talk-vault-back.onrender.com",
+        path: "/upload",
+        fileName: data.file?.name,
+        fileType: data.file?.type,
+        fileSize: data.file?.size,
+      });
+    } catch {
+      // ignore debug failures
+    }
 
     const response = (await apiClient.post<FileUploadResponse>("/upload", formData, {
       headers: { "Content-Type": "multipart/form-data" },
