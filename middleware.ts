@@ -5,6 +5,10 @@ export function middleware(request: NextRequest) {
   const refreshToken = request.cookies.get("refreshToken");
   const { pathname } = request.nextUrl;
 
+  console.log("🔒 Middleware 실행:", pathname);
+  console.log("🍪 RefreshToken 쿠키:", refreshToken);
+  console.log("🍪 모든 쿠키:", request.cookies.getAll());
+
   // 보호된 경로: 토큰 없으면 로그인으로 리다이렉트
   if (
     (pathname.startsWith("/upload") ||
@@ -12,6 +16,7 @@ export function middleware(request: NextRequest) {
       pathname.startsWith("/home")) &&
     !refreshToken
   ) {
+    console.log("❌ 토큰 없음 - 로그인으로 리다이렉트");
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
