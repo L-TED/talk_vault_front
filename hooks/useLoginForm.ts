@@ -41,11 +41,11 @@ export const useLoginForm = () => {
 
       toast.success("로그인에 성공했습니다!");
 
-      // refreshToken 쿠키 설정 완료 대기 (중요!)
-      await new Promise((resolve) => setTimeout(resolve, 200));
+      // 중요: 충분한 대기 시간 확보
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
-      // /mypage로 이동 - window.location.href 사용 (새로고침)
-      window.location.href = "/mypage";
+      // 완전한 새로고침으로 페이지 이동 (쿠키 확실히 적용)
+      window.location.replace("/mypage");
     } catch (err) {
       const errorMsg = "로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.";
       setError(errorMsg);
