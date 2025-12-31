@@ -41,6 +41,9 @@ export const useLoginForm = () => {
 
       toast.success("로그인에 성공했습니다!");
 
+      // refreshToken 쿠키 설정 대기 (중요!)
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
       // /mypage로 이동
       router.push("/mypage");
     } catch (err) {
