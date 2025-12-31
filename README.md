@@ -1,139 +1,58 @@
-# KakaoTalk Conversation Converter
+# TalkVault (KakaoTalk Conversation Converter) - Frontend
 
-카카오톡 대화 내용을 분석하여 엑셀 파일로 변환하고, 변환 기록을 관리하는 웹 애플리케이션입니다.
+카카오톡 대화 텍스트(.txt)를 업로드/붙여넣기하여 PDF 및 Excel 파일로 변환하고, 변환 히스토리를 조회/다운로드하는 프론트엔드 애플리케이션입니다.
 
-## 📋 Project Overview
+## ✅ 현재 구현 상태
 
-### Tech Stack
+- 로그인/회원가입 UI 및 폼 유효성 검사
+- Access Token 기반 API 호출 + 401 발생 시 Refresh로 자동 갱신(axios interceptor)
+- 대화 텍스트 붙여넣기 또는 `.txt` 파일 업로드 → 변환 요청
+- 결과 페이지에서 변환 상태 폴링 후 파일 다운로드
+- 마이페이지에서 변환 히스토리 목록 조회 및 다운로드
 
-- **Framework:** Next.js 14+ (App Router)
+## 🧰 Tech Stack
+
+- **Next.js:** 16 (App Router)
 - **Language:** TypeScript
-- **Styling:** Tailwind CSS
-- **State Management:** Zustand
-- **HTTP Client:** Axios
-- **Authentication:** JWT (Access/Refresh Token)
+- **Styling:** Tailwind CSS v4
+- **State:** Zustand (유저 프로필/인증 상태)
+- **HTTP:** Axios (withCredentials)
+- **UI Feedback:** react-toastify
 
-### Core Features
+## 🗺️ Routing
 
-- 카카오톡 대화 텍스트 붙여넣기 및 분석
-- 분석된 데이터를 엑셀 파일로 변환
-- 변환 기록(History) 관리 (조회, 다운로드, 삭제)
-- 사용자 인증 및 권한 관리
+- `/` : 랜딩(로그인/회원가입 이동)
+- `/login` : 로그인
+- `/signup` : 회원가입
+- `/home` : 변환 메인(텍스트/파일 입력)
+- `/result/[id]` : 변환 결과(상태 확인/다운로드)
+- `/mypage` : 히스토리 목록(다운로드, 삭제는 현재 로컬 처리)
 
-## 🏗️ Architecture
+> 참고: `(protected)` 그룹 라우트가 존재하지만, 현재 `middleware.ts`에서 서버 사이드 보호를 강제하지 않습니다. 인증 실패 처리(401)는 클라이언트의 axios interceptor가 담당합니다.
 
-### Directory Structure
+## 🔐 인증/토큰 처리 방식
 
-```
-converting_txt_front/
-├── app/                      # Next.js App Router
-│   ├── (auth)/              # 인증 관련 페이지
-│   │   ├── login/           # 로그인 페이지
-│   │   └── signup/          # 회원가입 페이지
-│   ├── (protected)/         # 인증 필요 페이지
-│   │   ├── mypage/          # 마이페이지 (메인)
-│   │   ├── upload/          # 업로드 페이지
-│   │   └── result/[id]/     # 변환 결과 상세
-│   ├── layout.tsx           # 루트 레이아웃
-│   └── page.tsx             # 홈 페이지
-│
-├── components/              # React 컴포넌트
-│   ├── auth/               # 인증 관련 컴포넌트
-│   ├── mypage/             # 마이페이지 컴포넌트
-│   └── upload/             # 업로드 관련 컴포넌트
-│
-├── lib/                     # 유틸리티 & API
-│   ├── api.ts              # Axios 인스턴스
-│   ├── auth.ts             # 토큰 관리
-│   └── utils.ts            # 헬퍼 함수
-│
-├── store/                   # 전역 상태 관리
-│   └── auth.store.ts       # 인증 상태
-│
-├── types/                   # TypeScript 타입
-│   └── types.ts            # 공통 타입 정의
-│
-└── middleware.ts            # 인증 미들웨어
-```
+- **Access Token**
+  - 로그인 성공 시 발급된 토큰을 `sessionStorage`(+메모리 캐시)에 저장합니다.
+  - API 요청 시 `Authorization: Bearer <token>` 헤더로 전송합니다.
+- **Refresh Token**
+  - `HttpOnly Cookie` 기반으로 동작한다고 가정하고, `withCredentials: true`로 요청합니다.
+- **자동 갱신**
+  - API 응답이 401이고 재시도 이력이 없으면 `/auth/refresh`를 호출해 토큰을 갱신한 뒤 원 요청을 재시도합니다.
+  - Refresh도 실패하면 토큰을 제거하고 `/login`으로 이동합니다.
 
-### Component Responsibility
+## 📦 API 계약(프론트가 사용하는 엔드포인트)
 
-- **Server Components:** 데이터 페칭, 보안 로직 처리
-- **Client Components:** 사용자 인터랙션, 상태 관리
-- **Middleware:** 토큰 기반 인증 및 페이지 접근 제어
+환경변수 `NEXT_PUBLIC_API_URL`을 baseURL로 사용합니다.
 
-## 🔐 Authentication Flow
-
-### Sign In
-
-1. 이메일/비밀번호로 로그인 요청
-2. 성공 시 Access Token & Refresh Token 발급
-3. 토큰 저장 및 사용자 정보 조회
-4. MyPage로 자동 이동
-5. 실패 시 에러 메시지 표시
-
-### Sign Up
-
-1. 필수 입력: 이메일, 비밀번호
-2. 선택 입력: 프로필 이미지
-3. 회원가입 성공 시 로그인 페이지로 이동
-
-### Token Management
-
-- **Access Token:** API 요청 시 Authorization 헤더에 포함
-- **Refresh Token:** Access Token 만료 시 자동 갱신
-- **Storage:** Access Token은 메모리, Refresh Token은 HttpOnly Cookie
-
-## 📱 Main Features
-
-### 1. Text Upload & Conversion
-
-- 카카오톡 대화 텍스트 붙여넣기
-- 백엔드 API를 통한 데이터 분석
-- 날짜, 발신자, 메시지 내용 추출
-- 엑셀 파일 생성 및 저장
-
-### 2. History Management
-
-- 변환 기록 리스트 조회 (최신순 정렬)
-- 필터링 옵션: 태그, 날짜, 내용
-- Gmail 스타일 UI/UX
-- 각 기록별 액션:
-  - 📥 엑셀 파일 다운로드
-  - 🗑️ 기록 삭제
-  - 👁️ 상세 내용 보기
-
-### 3. User Profile
-
-- 프로필 정보 조회 및 수정
-- 프로필 이미지 업로드
-- 비밀번호 변경
-
-## 🗄️ Database Schema (Backend Reference)
-
-### Users Table
-
-- `id` (PK)
-- `email` (Unique)
-- `password` (Hashed)
-- `profileImage` (Optional)
-- `createdAt`, `updatedAt`
-
-### RefreshTokens Table
-
-- `id` (PK)
-- `userId` (FK)
-- `token`
-- `expiresAt`
-
-### Histories Table
-
-- `id` (PK)
-- `userId` (FK)
-- `tag` (카테고리/태그)
-- `content` (텍스트 내용)
-- `excelPath` (생성된 파일 경로)
-- `createdAt`, `updatedAt`
+- Auth
+  - `POST /auth/login`
+  - `POST /auth/signup` (multipart/form-data)
+  - `POST /auth/logout`
+  - `POST /auth/refresh`
+  - `POST /upload` (multipart/form-data)
+  - `GET /histories` (결과 페이지는 여기서 id로 검색/폴링)
+  - `GET /histories/:id/download` (파일 다운로드)
 
 ## 🚀 Getting Started
 
@@ -141,74 +60,68 @@ converting_txt_front/
 
 ```bash
 Node.js 18+
-npm or yarn or pnpm
 ```
 
-### Installation
+### Install
 
 ```bash
-# 의존성 설치
 npm install
-
-# 환경변수 설정
-cp .env.example .env
 ```
 
 ### Environment Variables
 
+`.env`에 아래 값을 설정합니다.
+
 ```env
-NEXT_PUBLIC_API_URL=http://localhost:8000/api
+NEXT_PUBLIC_API_URL=http://localhost:8000
 ```
 
-### Development
+> 운영 환경에서 `NEXT_PUBLIC_API_URL`이 없으면 빌드/런타임에서 명확한 에러를 내도록 되어 있습니다.
+
+### Run
 
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000)
+## 🧱 Directory Guide
 
-### Build
+```text
+app/
+  page.tsx                   # 랜딩
+  (auth)/
+    login/page.tsx
+    signup/page.tsx
+  (protected)/
+    home/page.tsx            # 변환 메인
+    result/[id]/page.tsx     # 변환 결과/다운로드
+    mypage/page.tsx          # 히스토리 목록
 
-```bash
-npm run build
-npm start
+components/
+  auth/                      # LoginForm, SignupForm
+  upload/                    # FileUploader(업로드/변환 요청)
+  mypage/                    # HistoryTable
+  common/                    # Button/Input 등
+
+lib/
+  api.ts                     # axios 인스턴스 + interceptor
+  auth.ts                    # access token 저장(sessionStorage)
+
+store/
+  auth.store.ts              # Zustand auth store
+
+hooks/
+  useLoginForm.ts
+  useSignupForm.ts
+  useHistory.ts
+  useCommon.ts
 ```
 
-## 📝 API Endpoints (Backend)
+## 📝 Notes / TODO
 
-### Authentication
-
-- `POST /api/auth/signup` - 회원가입
-- `POST /api/auth/login` - 로그인
-- `POST /api/auth/logout` - 로그아웃
-- `POST /api/auth/refresh` - 토큰 갱신
-
-### User
-
-- `GET /api/users/me` - 내 정보 조회
-- `PATCH /api/users/me` - 내 정보 수정
-
-### History
-
-- `GET /api/histories` - 변환 기록 목록
-- `POST /api/histories` - 새 변환 작업
-- `GET /api/histories/:id` - 특정 기록 조회
-- `DELETE /api/histories/:id` - 기록 삭제
-- `GET /api/histories/:id/download` - 엑셀 파일 다운로드
-
-## 🎨 UI/UX Guidelines
-
-- **Design System:** Tailwind CSS 기반 커스텀 디자인
-- **Responsive:** 모바일, 태블릿, 데스크톱 대응
-- **Accessibility:** ARIA 속성 및 키보드 네비게이션 지원
-- **Loading States:** 스켈레톤 UI 및 로딩 인디케이터
-- **Error Handling:** 사용자 친화적 에러 메시지
+- 마이페이지 삭제 버튼은 현재 로컬 상태에서만 제거(TODO: 실제 DELETE API 연동)
+- `/upload` 라우트는 현재 플레이스홀더
 
 ## 📄 License
 
 This project is private and proprietary.
-
-## 🤝 Contributing
-
-Contact the project maintainer for contribution guidelines.

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Jua, Poor_Story, Nanum_Gothic } from "next/font/google";
 import "./globals.css";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
@@ -11,6 +11,24 @@ const geistSans = Geist({
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+const jua = Jua({
+  variable: "--font-jua",
+  weight: "400",
+  subsets: ["latin"],
+});
+
+const poorStory = Poor_Story({
+  variable: "--font-poor-story",
+  weight: "400",
+  subsets: ["latin"],
+});
+
+const nanumGothic = Nanum_Gothic({
+  variable: "--font-nanum-gothic",
+  weight: ["400", "700"],
   subsets: ["latin"],
 });
 
@@ -26,7 +44,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} ${jua.variable} ${poorStory.variable} ${nanumGothic.variable} antialiased`}
+      >
         {children}
         <ToastContainer
           position="top-right"

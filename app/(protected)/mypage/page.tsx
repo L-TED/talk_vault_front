@@ -6,10 +6,12 @@ import { useAuthStore } from "@/store/auth.store";
 import { uploadApi } from "@/lib/api";
 import { History } from "@/types/upload.types";
 import HistoryTable from "@/components/mypage/HistoryTable";
+import { useProfileImage } from "@/hooks/useCommon";
 
 const Mypage = () => {
   const router = useRouter();
   const { user } = useAuthStore();
+  const profileImageUrl = useProfileImage();
   const [histories, setHistories] = useState<History[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
@@ -89,28 +91,31 @@ const Mypage = () => {
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <h1 className="text-xl font-semibold text-gray-900">마이페이지</h1>
+            <button
+              type="button"
+              onClick={() => router.push("/home")}
+              className="text-2xl font-bold text-blue-600"
+              aria-label="TalkVault 홈으로 이동"
+            >
+              TalkVault
+            </button>
 
             <div className="flex items-center gap-4">
-              {/* 홈 버튼 */}
-              <button
-                onClick={() => router.push("/home")}
-                className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
-              >
-                TalkVault
-              </button>
-
               {/* 프로필 이미지 */}
-              <div className="w-10 h-10 rounded-full bg-linear-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-semibold overflow-hidden">
-                {user?.profileImageUrl ? (
-                  <img
-                    src={user.profileImageUrl}
-                    alt="프로필"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <span>{user?.email?.[0]?.toUpperCase() || "U"}</span>
-                )}
+              <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden">
+                <img
+                  src={profileImageUrl}
+                  alt="프로필"
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    // 이미 기본 이미지로 변경했으면 무한루프 방지
+                    if (!target.src.startsWith("data:")) {
+                      target.src =
+                        "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='20' fill='%23E5E7EB'/%3E%3Cpath d='M20 20c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.33 0-10 1.67-10 5v3h20v-3c0-3.33-6.67-5-10-5z' fill='%239CA3AF'/%3E%3C/svg%3E";
+                    }
+                  }}
+                />
               </div>
             </div>
           </div>
