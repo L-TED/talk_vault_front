@@ -8,17 +8,28 @@ import type {
 import type { FileUploadRequest, FileUploadResponse, History } from "@/types/upload.types";
 import { getAccessToken, setAccessToken, removeAccessToken } from "./auth";
 
-// 환경변수 검증
+// 환경변수 검증 및 설정
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
-if (!API_BASE_URL) {
+// Production 환경에서 환경변수가 없으면 명확한 에러
+if (!API_BASE_URL && process.env.NODE_ENV === "production") {
+  throw new Error(
+    "❌ CRITICAL: NEXT_PUBLIC_API_URL 환경변수가 설정되지 않았습니다!\n" +
+      "Vercel Dashboard → Settings → Environment Variables에서 설정하세요.\n" +
+      "Key: NEXT_PUBLIC_API_URL\n" +
+      "Value: https://talk-vault-back.onrender.com"
+  );
+}
+
+if (!API_BASE_URL && typeof window !== "undefined") {
   console.error("❌ NEXT_PUBLIC_API_URL 환경변수가 설정되지 않았습니다!");
-  console.error("Vercel 환경변수를 확인하세요: https://vercel.com/docs/environment-variables");
+  console.error("로컬 개발: .env 파일을 확인하세요");
+  console.error("Vercel 배포: Dashboard에서 환경변수를 설정하세요");
 }
 
 // Client용 Axios 인스턴스 (withCredentials)
 const apiClient = axios.create({
-  baseURL: API_BASE_URL || "http://localhost:8000",
+  baseURL: API_BASE_URL || "https://talk-vault-back.onrender.com",
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
