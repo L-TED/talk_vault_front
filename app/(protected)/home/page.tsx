@@ -10,8 +10,8 @@ export default function HomePage() {
   const { file, textContent, isLoading, error, handleFileChange, handleTextChange, handleConvert } =
     FileUploader({
       onUploadSuccess: (historyId) => {
-        // 업로드 성공 시 마이페이지로 이동
-        router.push("/mypage");
+        // 업로드 성공 시 결과 페이지로 이동 (변환 상태는 결과 페이지에서 비동기로 폴링)
+        router.push(`/result/${historyId}`);
       },
     });
 

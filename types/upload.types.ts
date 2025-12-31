@@ -21,8 +21,8 @@ export interface FileUploadResponse {
   id: string;
   originalFileName: string;
   savedFileName: string;
-  pdfPath: string;
-  excelPath: string;
+  pdfPath?: string;
+  excelPath?: string;
   fileSize: number;
   createdAt: Date;
 }
