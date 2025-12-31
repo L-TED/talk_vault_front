@@ -8,9 +8,17 @@ import type {
 import type { FileUploadRequest, FileUploadResponse, History } from "@/types/upload.types";
 import { getAccessToken, setAccessToken, removeAccessToken } from "./auth";
 
+// 환경변수 검증
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+
+if (!API_BASE_URL) {
+  console.error("❌ NEXT_PUBLIC_API_URL 환경변수가 설정되지 않았습니다!");
+  console.error("Vercel 환경변수를 확인하세요: https://vercel.com/docs/environment-variables");
+}
+
 // Client용 Axios 인스턴스 (withCredentials)
 const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000",
+  baseURL: API_BASE_URL || "http://localhost:8000",
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
@@ -47,7 +55,7 @@ apiClient.interceptors.response.use(
       try {
         // Refresh Token으로 새 Access Token 발급
         const response = await axios.post<{ accessToken: string }>(
-          `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh`,
+          `${API_BASE_URL}/auth/refresh`,
           {},
           { withCredentials: true }
         );

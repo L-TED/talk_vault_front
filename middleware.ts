@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-export function proxy(request: NextRequest) {
+export function middleware(request: NextRequest) {
   // refreshToken 쿠키 확인 (백엔드에서 httpOnly로 설정)
   const refreshToken = request.cookies.get("refreshToken");
   const { pathname } = request.nextUrl;
