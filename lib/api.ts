@@ -31,14 +31,23 @@ if (!API_BASE_URL && typeof window !== "undefined") {
 const apiClient = axios.create({
   baseURL: API_BASE_URL || "https://talk-vault-back.onrender.com",
   withCredentials: true,
-  headers: {
-    "Content-Type": "application/json",
-  },
 });
 
 // Request 인터셉터: Access Token 자동 추가
 apiClient.interceptors.request.use(
   (config) => {
+    // If using FormData, do NOT force Content-Type.
+    // The browser must set `multipart/form-data; boundary=...` automatically.
+    const isFormData =
+      typeof FormData !== "undefined" &&
+      (config.data instanceof FormData ||
+        // Some bundlers wrap FormData; fallback check
+        (config.data && (config.data as any).constructor?.name === "FormData"));
+    if (isFormData) {
+      config.headers = config.headers || {};
+      delete (config.headers as any)["Content-Type"];
+    }
+
     const token = getAccessToken();
     if (token) {
       config.headers = config.headers || {};
@@ -229,7 +238,8 @@ export const uploadApi = {
   // 파일 업로드 - POST /upload
   uploadFile: async (data: FileUploadRequest): Promise<FileUploadResponse> => {
     const formData = new FormData();
-    formData.append("file", data.file);
+    // Ensure filename is present for multipart parsers
+    formData.append("file", data.file, data.file.name);
 
     try {
       console.log("[UploadDebug] api uploadFile", {
