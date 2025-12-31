@@ -1,18 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export function middleware(request: NextRequest) {
-  // refreshToken 쿠키 확인 (백엔드에서 httpOnly로 설정)
+  // 모든 쿠키 확인 (디버깅)
+  const allCookies = request.cookies.getAll();
   const refreshToken = request.cookies.get("refreshToken");
   const { pathname } = request.nextUrl;
 
   // 디버깅 로그 (개발 환경에서만)
-  if (process.env.NODE_ENV === "development") {
-    console.log("🔒 Middleware Check:", {
-      pathname,
-      hasRefreshToken: !!refreshToken,
-      cookies: request.cookies.getAll().map((c) => c.name),
-    });
-  }
+  console.log("🔒 Middleware Check:", {
+    pathname,
+    hasRefreshToken: !!refreshToken,
+    allCookies: allCookies.map((c) => `${c.name}=${c.value.substring(0, 20)}...`),
+    cookieNames: allCookies.map((c) => c.name),
+  });
 
   // 보호된 경로: 토큰 없으면 로그인으로 리다이렉트
   if (
@@ -21,7 +21,8 @@ export function middleware(request: NextRequest) {
       pathname.startsWith("/home")) &&
     !refreshToken
   ) {
-    console.warn("⚠️ No refreshToken, redirecting to /login");
+    console.warn("⚠️ No refreshToken cookie found, redirecting to /login");
+    console.warn("Available cookies:", allCookies.map((c) => c.name).join(", "));
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
