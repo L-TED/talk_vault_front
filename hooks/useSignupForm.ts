@@ -67,16 +67,10 @@ export const useSignupForm = () => {
 
       console.log("✅ 회원가입 응답:", response);
 
-      // 토큰 저장
-      setAccessToken(response.accessToken);
-
-      // Zustand 스토어에 유저 정보 저장
-      setUser(response.user);
-
       toast.success("회원가입에 성공했습니다!");
 
-      // /mypage로 이동
-      router.push("/mypage");
+      // 로그인 페이지로 이동
+      router.push("/login");
     } catch (err: any) {
       console.error("❌ 회원가입 에러:", err);
       console.error("에러 상세:", err.response?.data || err.message);
