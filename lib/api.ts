@@ -39,6 +39,20 @@ const apiClient = axios.create({
 // Request 인터셉터: Access Token 자동 추가
 apiClient.interceptors.request.use(
   (config) => {
+    // Debug: request overview (avoid logging bodies)
+    try {
+      const url = `${config.baseURL || ""}${config.url || ""}`;
+      console.log("[ApiDebug] request", {
+        method: config.method,
+        url,
+        withCredentials: config.withCredentials,
+        hasAuthHeader: Boolean((config.headers as any)?.Authorization),
+        contentType: (config.headers as any)?.["Content-Type"],
+      });
+    } catch {
+      // ignore debug failures
+    }
+
     const token = getAccessToken();
     if (token) {
       config.headers = config.headers || {};
@@ -54,22 +68,48 @@ apiClient.interceptors.request.use(
 // Response 인터셉터: 401 에러 시 토큰 갱신
 apiClient.interceptors.response.use(
   (response: any) => {
+    // Debug: response status for observability
+    try {
+      console.log("[ApiDebug] response", {
+        url: response?.config?.url,
+        method: response?.config?.method,
+        status: response?.status,
+      });
+    } catch {
+      // ignore debug failures
+    }
     return response.data;
   },
   async (error: any) => {
     const originalRequest = error.config;
+
+    // Debug: error details (keep before any transformation)
+    try {
+      console.error("[ApiDebug] error", {
+        url: originalRequest?.url,
+        method: originalRequest?.method,
+        status: error?.response?.status,
+        statusText: error?.response?.statusText,
+        responseData: error?.response?.data,
+      });
+    } catch {
+      // ignore debug failures
+    }
 
     // 401 에러이고 재시도하지 않은 경우
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
       try {
+        console.log("[ApiDebug] refresh start");
         // Refresh Token으로 새 Access Token 발급
         const response = await axios.post<{ accessToken: string }>(
           `${API_BASE_URL}/auth/refresh`,
           {},
           { withCredentials: true }
         );
+
+        console.log("[ApiDebug] refresh success", { status: response.status });
 
         const newAccessToken = response.data.accessToken;
         setAccessToken(newAccessToken);
@@ -79,6 +119,15 @@ apiClient.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
         return apiClient(originalRequest);
       } catch (refreshError) {
+        try {
+          const anyRefreshErr = refreshError as any;
+          console.error("[ApiDebug] refresh failed", {
+            status: anyRefreshErr?.response?.status,
+            responseData: anyRefreshErr?.response?.data,
+          });
+        } catch {
+          // ignore
+        }
         // Refresh 실패 시 로그아웃 처리
         removeAccessToken();
         if (typeof window !== "undefined") {
