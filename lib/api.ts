@@ -283,10 +283,9 @@ export const uploadApi = {
   },
 
   // 파일 다운로드 - GET /histories/:id/download
-  downloadFile: async (id: string, type?: "pdf" | "excel"): Promise<Blob> => {
+  downloadFile: async (id: string): Promise<Blob> => {
     const response = (await apiClient.get<Blob>(`/histories/${id}/download`, {
       responseType: "blob",
-      params: type ? { type } : undefined,
     })) as any as Blob;
     return response;
   },

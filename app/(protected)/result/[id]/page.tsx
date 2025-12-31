@@ -24,6 +24,13 @@ export default function ResultPage({ params }: PageProps) {
     return original.replace(/\.txt$/i, "");
   }, [history?.originalFileName]);
 
+  const availableFileLabel = useMemo(() => {
+    if (!history) return "다운로드";
+    if (history.pdfPath) return "PDF 다운로드";
+    if (history.excelPath) return "Excel 다운로드";
+    return "다운로드";
+  }, [history]);
+
   useEffect(() => {
     let cancelled = false;
     let intervalId: number | undefined;
@@ -82,13 +89,13 @@ export default function ResultPage({ params }: PageProps) {
     };
   }, [historyId]);
 
-  const handleDownload = async (type: "pdf" | "excel") => {
+  const handleDownload = async () => {
     try {
-      const blob = await uploadApi.downloadFile(historyId, type);
+      const blob = await uploadApi.downloadFile(historyId);
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = type === "pdf" ? `${baseName}.pdf` : `${baseName}.xlsx`;
+      link.download = history?.savedFileName || `${baseName}.bin`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -99,8 +106,8 @@ export default function ResultPage({ params }: PageProps) {
   };
 
   const isProcessing = status === "loading" || status === "processing";
-  const canDownloadPdf = Boolean(history?.pdfPath) && status === "ready";
-  const canDownloadExcel = Boolean(history?.excelPath) && status === "ready";
+  const canDownload =
+    (Boolean(history?.pdfPath) || Boolean(history?.excelPath)) && status === "ready";
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center">
@@ -135,18 +142,10 @@ export default function ResultPage({ params }: PageProps) {
           <div className="mt-6 space-y-3">
             <button
               className="w-full px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
-              onClick={() => handleDownload("pdf")}
-              disabled={!canDownloadPdf}
+              onClick={handleDownload}
+              disabled={!canDownload}
             >
-              PDF 다운로드
-            </button>
-
-            <button
-              className="w-full px-6 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
-              onClick={() => handleDownload("excel")}
-              disabled={!canDownloadExcel}
-            >
-              Excel 다운로드
+              {availableFileLabel}
             </button>
 
             <button
