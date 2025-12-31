@@ -37,7 +37,12 @@ export default function HomePage() {
             alt="Profile"
             className="w-full h-full object-cover"
             onError={(e) => {
-              (e.target as HTMLImageElement).src = "/default-profile.png";
+              const target = e.target as HTMLImageElement;
+              // 이미 기본 이미지로 변경했으면 무한루프 방지
+              if (!target.src.startsWith("data:")) {
+                target.src =
+                  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='20' fill='%23E5E7EB'/%3E%3Cpath d='M20 20c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.33 0-10 1.67-10 5v3h20v-3c0-3.33-6.67-5-10-5z' fill='%239CA3AF'/%3E%3C/svg%3E";
+              }
             }}
           />
         </div>
