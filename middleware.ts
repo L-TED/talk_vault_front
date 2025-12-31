@@ -5,12 +5,6 @@ export function middleware(request: NextRequest) {
   const refreshToken = request.cookies.get("refreshToken");
   const { pathname } = request.nextUrl;
 
-  console.log("🔒 Middleware:", {
-    pathname,
-    hasRefreshToken: !!refreshToken,
-    allCookies: request.cookies.getAll().map((c) => c.name),
-  });
-
   // 보호된 경로: 토큰 없으면 로그인으로 리다이렉트
   if (
     (pathname.startsWith("/upload") ||
@@ -18,7 +12,6 @@ export function middleware(request: NextRequest) {
       pathname.startsWith("/home")) &&
     !refreshToken
   ) {
-    console.warn("❌ No refreshToken, redirecting to /login");
     return NextResponse.redirect(new URL("/login", request.url));
   }
 

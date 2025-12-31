@@ -33,8 +33,6 @@ export const useLoginForm = () => {
       const loginData: LoginRequest = { email, password };
       const response = await authApi.login(loginData);
 
-      console.log("✅ Login successful:", response);
-
       // 토큰 저장
       setAccessToken(response.accessToken);
 
@@ -43,20 +41,14 @@ export const useLoginForm = () => {
 
       toast.success("로그인에 성공했습니다!");
 
-      console.log("🔄 Redirecting to /mypage...");
-
-      // 즉시 리다이렉트 (finally 실행 전에)
-      setTimeout(() => {
-        window.location.replace("/mypage");
-      }, 100);
-
-      // return으로 finally 블록 실행 방지
-      return;
+      // /mypage로 이동
+      router.push("/mypage");
     } catch (err) {
       const errorMsg = "로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.";
       setError(errorMsg);
       toast.error(errorMsg);
       console.error("Login error:", err);
+    } finally {
       setIsLoading(false);
     }
   };
