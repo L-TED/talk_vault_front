@@ -261,11 +261,11 @@ export const uploadApi = {
     }
 
     // Do not set Content-Type manually; the browser will add the correct multipart boundary.
-    const response = (await apiClient.post<FileUploadResponse>("/upload", formData, {
-      headers: {
-        "X-Request-Id": requestId,
-      },
-    })) as any as FileUploadResponse;
+    const uploadUrl = `/upload?requestId=${encodeURIComponent(requestId)}`;
+    const response = (await apiClient.post<FileUploadResponse>(
+      uploadUrl,
+      formData
+    )) as any as FileUploadResponse;
     return response;
   },
 
