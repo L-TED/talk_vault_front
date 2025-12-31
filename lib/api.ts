@@ -63,6 +63,7 @@ apiClient.interceptors.request.use(
         withCredentials: config.withCredentials,
         hasAuthHeader: Boolean((config.headers as any)?.Authorization),
         contentType: (config.headers as any)?.["Content-Type"],
+        requestId: (config.headers as any)?.["X-Request-Id"],
       });
     } catch {
       // ignore debug failures
@@ -241,8 +242,14 @@ export const uploadApi = {
     // Ensure filename is present for multipart parsers
     formData.append("file", data.file, data.file.name);
 
+    const requestId =
+      typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+        ? crypto.randomUUID()
+        : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
     try {
       console.log("[UploadDebug] api uploadFile", {
+        requestId,
         baseURL: API_BASE_URL || "https://talk-vault-back.onrender.com",
         path: "/upload",
         fileName: data.file?.name,
@@ -254,10 +261,11 @@ export const uploadApi = {
     }
 
     // Do not set Content-Type manually; the browser will add the correct multipart boundary.
-    const response = (await apiClient.post<FileUploadResponse>(
-      "/upload",
-      formData
-    )) as any as FileUploadResponse;
+    const response = (await apiClient.post<FileUploadResponse>("/upload", formData, {
+      headers: {
+        "X-Request-Id": requestId,
+      },
+    })) as any as FileUploadResponse;
     return response;
   },
 
