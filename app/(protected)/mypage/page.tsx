@@ -12,10 +12,29 @@ const Mypage = () => {
   const { user } = useAuthStore();
   const [histories, setHistories] = useState<History[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
   useEffect(() => {
-    fetchHistories();
-  }, []);
+    // 인증 체크: accessToken 또는 API 호출로 확인
+    const checkAuth = async () => {
+      try {
+        // API 호출로 인증 상태 확인 (refreshToken이 자동으로 전송됨)
+        await uploadApi.getHistories();
+        setIsCheckingAuth(false);
+      } catch (error) {
+        console.error("인증 실패:", error);
+        router.push("/login");
+      }
+    };
+
+    checkAuth();
+  }, [router]);
+
+  useEffect(() => {
+    if (!isCheckingAuth) {
+      fetchHistories();
+    }
+  }, [isCheckingAuth]);
 
   const fetchHistories = async () => {
     try {
@@ -28,6 +47,7 @@ const Mypage = () => {
       setHistories(sortedData);
     } catch (error) {
       console.error("히스토리 조회 실패:", error);
+      router.push("/login");
     } finally {
       setIsLoading(false);
     }

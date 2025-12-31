@@ -97,23 +97,7 @@ apiClient.interceptors.response.use(
 export const authApi = {
   // 로그인 - POST /auth/login
   login: async (data: LoginRequest): Promise<LoginResponse> => {
-    console.log("📤 API 요청 시작:", data.email);
-    const response = (await apiClient.post<LoginResponse>(
-      "/auth/login",
-      data
-    )) as any as LoginResponse;
-
-    console.log("📥 API 응답 원본:", response);
-
-    // Access Token 저장
-    if (response.accessToken) {
-      setAccessToken(response.accessToken);
-      console.log("✅ AccessToken 있음");
-    } else {
-      console.warn("⚠️ AccessToken 없음!");
-    }
-
-    return response;
+    return (await apiClient.post<LoginResponse>("/auth/login", data)) as any as LoginResponse;
   },
 
   // 회원가입 - POST /auth/signup
