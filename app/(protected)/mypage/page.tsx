@@ -73,10 +73,10 @@ const Mypage = () => {
             <div className="flex items-center gap-4">
               {/* 홈 버튼 */}
               <button
-                onClick={() => router.push("/")}
+                onClick={() => router.push("/home")}
                 className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
               >
-                홈으로
+                TalkVault
               </button>
 
               {/* 프로필 이미지 */}
