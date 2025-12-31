@@ -125,12 +125,12 @@ const Mypage = () => {
         </div>
 
         {/* 히스토리 테이블 */}
-        {/* <HistoryTable
+        <HistoryTable
           histories={histories}
           onDelete={handleDelete}
           onDownload={handleDownload}
           isLoading={isLoading}
-        /> */}
+        />
       </main>
     </div>
   );
