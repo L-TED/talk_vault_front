@@ -165,9 +165,11 @@ export const authApi = {
       formData.append("profileImage", data.profileImage);
     }
 
-    const response = (await apiClient.post<SignupResponse>("/auth/signup", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    })) as any as SignupResponse;
+    // Do not set Content-Type manually; the browser will add the correct multipart boundary.
+    const response = (await apiClient.post<SignupResponse>(
+      "/auth/signup",
+      formData
+    )) as any as SignupResponse;
 
     // Access Token 저장
     if (response.accessToken) {
@@ -210,9 +212,8 @@ export const usersApi = {
     if (data.password) formData.append("password", data.password);
     if (data.profileImage) formData.append("profileImage", data.profileImage);
 
-    const response = await apiClient.patch(`/users/${id}`, formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+    // Do not set Content-Type manually; the browser will add the correct multipart boundary.
+    const response = await apiClient.patch(`/users/${id}`, formData);
     return response;
   },
 
@@ -242,9 +243,11 @@ export const uploadApi = {
       // ignore debug failures
     }
 
-    const response = (await apiClient.post<FileUploadResponse>("/upload", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    })) as any as FileUploadResponse;
+    // Do not set Content-Type manually; the browser will add the correct multipart boundary.
+    const response = (await apiClient.post<FileUploadResponse>(
+      "/upload",
+      formData
+    )) as any as FileUploadResponse;
     return response;
   },
 
