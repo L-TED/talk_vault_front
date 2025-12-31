@@ -15,15 +15,16 @@ const Mypage = () => {
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
   useEffect(() => {
-    // 인증 체크: accessToken 또는 API 호출로 확인
+    // 초기 데이터 로드만 수행, 인증 실패 판단은 interceptor가 담당
     const checkAuth = async () => {
       try {
-        // API 호출로 인증 상태 확인 (refreshToken이 자동으로 전송됨)
         await uploadApi.getHistories();
         setIsCheckingAuth(false);
       } catch (error) {
-        console.error("인증 실패:", error);
-        router.push("/login");
+        // interceptor가 이미 401 처리 및 /login 리다이렉트 수행
+        // 여기서는 에러 로깅만
+        console.error("API 호출 실패:", error);
+        setIsCheckingAuth(false);
       }
     };
 
@@ -46,8 +47,8 @@ const Mypage = () => {
       );
       setHistories(sortedData);
     } catch (error) {
+      // interceptor가 이미 인증 처리함, 여기서는 에러 로깅만
       console.error("히스토리 조회 실패:", error);
-      router.push("/login");
     } finally {
       setIsLoading(false);
     }
