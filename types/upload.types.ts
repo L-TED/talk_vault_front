@@ -16,7 +16,13 @@ export interface FileUploadRequest {
   file: File;
 }
 
-// 파일 업로드 응답
+// 파일 업로드 응답 (백엔드가 평탄한 구조로 반환)
 export interface FileUploadResponse {
-  history: History;
+  id: string;
+  originalFileName: string;
+  savedFileName: string;
+  pdfPath: string;
+  excelPath: string;
+  fileSize: number;
+  createdAt: Date;
 }

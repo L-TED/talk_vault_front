@@ -38,18 +38,8 @@ const FileUploader = ({ onUploadSuccess }: FileUploaderProps) => {
     setError(null);
   };
 
-  // PDF 변환 핸들러
-  const handleConvertToPdf = async () => {
-    await handleUpload("pdf");
-  };
-
-  // Excel 변환 핸들러
-  const handleConvertToExcel = async () => {
-    await handleUpload("excel");
-  };
-
-  // 파일 업로드 및 변환
-  const handleUpload = async (format: "pdf" | "excel") => {
+  // 파일 업로드 및 변환 (백엔드가 PDF와 Excel 모두 생성)
+  const handleConvert = async () => {
     let uploadFile: File;
 
     // 텍스트가 입력된 경우 파일로 변환
@@ -71,8 +61,8 @@ const FileUploader = ({ onUploadSuccess }: FileUploaderProps) => {
       const response = await uploadApi.uploadFile(uploadData);
 
       // 업로드 성공 시 콜백 실행
-      if (onUploadSuccess && response.history.id) {
-        onUploadSuccess(response.history.id);
+      if (onUploadSuccess && response.id) {
+        onUploadSuccess(response.id);
       }
 
       // 상태 초기화
@@ -93,8 +83,7 @@ const FileUploader = ({ onUploadSuccess }: FileUploaderProps) => {
     error,
     handleFileChange,
     handleTextChange,
-    handleConvertToPdf,
-    handleConvertToExcel,
+    handleConvert,
   };
 };
 
