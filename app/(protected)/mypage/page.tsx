@@ -72,6 +72,25 @@ const Mypage = () => {
 
   const handleDownload = async (id: string) => {
     try {
+      const target = histories.find((h) => h.id === id);
+      const directUrl = target?.pdfPath || target?.excelPath;
+
+      // If backend stores Supabase public URLs in pdfPath/excelPath, download directly.
+      if (directUrl && /^https?:\/\//i.test(directUrl)) {
+        const res = await fetch(directUrl);
+        if (!res.ok) throw new Error("direct download failed");
+        const blob = await res.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = target?.savedFileName || `history-${id}`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        return;
+      }
+
       const { blob, fileName } = await uploadApi.downloadFile(id);
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");

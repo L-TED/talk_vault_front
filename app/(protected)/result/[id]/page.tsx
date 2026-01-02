@@ -41,7 +41,8 @@ export default function ResultPage({ params }: PageProps) {
 
     // Backend implementation generates PDF/Excel synchronously during /upload.
     // If paths are missing, endless polling won't help; do a few short retries then stop.
-    const RETRY_DELAYS_MS = [0, 1000, 2000, 4000];
+    // Give DB/list propagation some time (still bounded; no infinite loop)
+    const RETRY_DELAYS_MS = [0, 1000, 2000, 4000, 8000, 12000];
     completedRef.current = false;
     attemptRef.current = 0;
 
