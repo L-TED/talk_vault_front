@@ -41,6 +41,19 @@ export const useLoginForm = () => {
       // Zustand 스토어에 유저 정보 저장
       setUser(response.user);
 
+      if (process.env.NODE_ENV !== "production") {
+        try {
+          console.info("[ProfileDebug] login success", {
+            id: (response.user as any)?.id,
+            profileImageUrl: (response.user as any)?.profileImageUrl,
+            hasAuthUserInSession: Boolean(sessionStorage.getItem("auth_user")),
+            authUserLength: sessionStorage.getItem("auth_user")?.length ?? 0,
+          });
+        } catch {
+          // ignore
+        }
+      }
+
       toast.success("로그인에 성공했습니다!");
 
       // /mypage로 이동
