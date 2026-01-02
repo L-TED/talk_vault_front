@@ -9,6 +9,9 @@ import type {
 import type { FileUploadRequest, FileUploadResponse, History } from "@/types/upload.types";
 import { getAccessToken, setAccessToken, removeAccessToken } from "./auth";
 
+const DEV = process.env.NODE_ENV !== "production";
+let lastHistoriesStackLogAt = 0;
+
 // 환경변수 검증 및 설정
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -53,6 +56,27 @@ apiClient.interceptors.request.use(
     if (token) {
       config.headers = config.headers || {};
       config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    // DEV-only: trace callers of /histories to catch request loops
+    if (DEV) {
+      try {
+        const urlPath = String(config.url || "");
+        if (urlPath.includes("/histories")) {
+          const now = Date.now();
+          // throttle to reduce noise when loops happen
+          if (now - lastHistoriesStackLogAt > 1500) {
+            lastHistoriesStackLogAt = now;
+            console.log("[HistoriesDebug] /histories request stack", {
+              method: config.method,
+              url: `${config.baseURL || ""}${config.url || ""}`,
+              stack: new Error().stack,
+            });
+          }
+        }
+      } catch {
+        // ignore debug failures
+      }
     }
 
     // Debug: request overview (avoid logging bodies)
