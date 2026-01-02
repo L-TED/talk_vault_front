@@ -207,7 +207,7 @@ export default function ResultPage({ params }: PageProps) {
 
           <div className="mt-6 space-y-3">
             <button
-              className="w-full px-6 py-3 bg-amber-50 text-amber-900 font-bold rounded-lg hover:bg-amber-100 transition-colors disabled:bg-stone-200 disabled:text-amber-700 disabled:cursor-not-allowed"
+              className="w-full px-6 py-3 bg-amber-100 text-amber-900 font-bold rounded-lg hover:bg-amber-200 transition-colors disabled:bg-stone-200 disabled:text-amber-700 disabled:cursor-not-allowed"
               onClick={handleDownload}
               disabled={!canDownload}
             >

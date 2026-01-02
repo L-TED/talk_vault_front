@@ -90,7 +90,7 @@ export default function HomePage() {
               <div className="absolute bottom-4 right-4">
                 <label
                   htmlFor="file-upload"
-                  className="cursor-pointer inline-flex items-center px-4 py-2 bg-amber-50 text-amber-900 rounded-lg hover:bg-amber-100 transition-colors text-sm font-bold"
+                  className="cursor-pointer inline-flex items-center px-4 py-2 bg-amber-100 text-amber-900 rounded-lg hover:bg-amber-200 transition-colors text-sm font-bold"
                 >
                   <svg
                     className="w-5 h-5 mr-2"
@@ -119,7 +119,7 @@ export default function HomePage() {
             </div>
 
             {file && (
-              <div className="flex items-center gap-2 text-sm text-amber-800 bg-amber-50 px-4 py-2 rounded-lg border border-amber-100">
+              <div className="flex items-center gap-2 text-sm text-amber-800 bg-amber-100 px-4 py-2 rounded-lg border border-amber-200">
                 <svg className="w-5 h-5 text-amber-700" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" />
                 </svg>
@@ -132,7 +132,7 @@ export default function HomePage() {
             <button
               onClick={handleConvert}
               disabled={isLoading || (!file && !textContent)}
-              className="w-full px-6 py-4 bg-amber-50 text-amber-900 font-bold rounded-lg hover:bg-amber-100 transition-colors disabled:bg-stone-200 disabled:text-amber-700 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full px-6 py-4 bg-amber-100 text-amber-900 font-bold rounded-lg hover:bg-amber-200 transition-colors disabled:bg-stone-200 disabled:text-amber-700 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isLoading ? (
                 <>

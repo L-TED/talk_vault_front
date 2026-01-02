@@ -7,13 +7,13 @@ export default function Home() {
         <div className="flex flex-col gap-4">
           <a
             href="/login"
-            className="inline-block px-4 py-2 bg-amber-50 text-amber-900 font-bold rounded hover:bg-amber-100 transition-colors"
+            className="inline-block px-4 py-2 bg-amber-100 text-amber-900 font-bold rounded hover:bg-amber-200 transition-colors"
           >
             로그인하기
           </a>
           <a
             href="/signup"
-            className="inline-block px-4 py-2 bg-amber-50 text-amber-900 font-bold rounded hover:bg-amber-100 transition-colors"
+            className="inline-block px-4 py-2 bg-amber-100 text-amber-900 font-bold rounded hover:bg-amber-200 transition-colors"
           >
             회원가입하기
           </a>
