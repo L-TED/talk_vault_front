@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { uploadApi } from "@/lib/api";
@@ -19,6 +19,11 @@ export default function ResultPage({ params }: PageProps) {
   const [history, setHistory] = useState<History | null>(null);
   const [status, setStatus] = useState<Status>("loading");
 
+  const inFlightRef = useRef(false);
+  const timeoutIdRef = useRef<number | null>(null);
+  const startedAtRef = useRef<number>(0);
+  const completedRef = useRef(false);
+
   const baseName = useMemo(() => {
     const original = history?.originalFileName || "converted";
     return original.replace(/\.txt$/i, "");
@@ -33,20 +38,45 @@ export default function ResultPage({ params }: PageProps) {
 
   useEffect(() => {
     let cancelled = false;
-    let intervalId: number | undefined;
 
     const POLL_INTERVAL_MS = 2000;
     const TIMEOUT_MS = 60_000;
-    const startedAt = Date.now();
+    startedAtRef.current = Date.now();
+    completedRef.current = false;
+
+    const clearTimer = () => {
+      if (timeoutIdRef.current) {
+        window.clearTimeout(timeoutIdRef.current);
+        timeoutIdRef.current = null;
+      }
+    };
+
+    const scheduleNext = () => {
+      clearTimer();
+      timeoutIdRef.current = window.setTimeout(() => {
+        poll();
+      }, POLL_INTERVAL_MS);
+    };
 
     const poll = async () => {
       try {
+        if (cancelled || completedRef.current) return;
+        if (inFlightRef.current) {
+          // Avoid overlapping requests (e.g. StrictMode double-mount or slow network)
+          scheduleNext();
+          return;
+        }
+
+        inFlightRef.current = true;
         const data = await uploadApi.getHistoryById(historyId);
+
+        inFlightRef.current = false;
 
         if (cancelled) return;
 
         if (!data) {
           setStatus("processing");
+          scheduleNext();
           return;
         }
 
@@ -57,35 +87,40 @@ export default function ResultPage({ params }: PageProps) {
 
         if (pdfReady || excelReady) {
           setStatus("ready");
-          if (intervalId) window.clearInterval(intervalId);
+          completedRef.current = true;
+          clearTimer();
           toast.success("변환이 완료되었습니다!");
           return;
         }
 
-        if (Date.now() - startedAt > TIMEOUT_MS) {
+        if (Date.now() - startedAtRef.current > TIMEOUT_MS) {
           setStatus("timeout");
-          if (intervalId) window.clearInterval(intervalId);
+          completedRef.current = true;
+          clearTimer();
           toast.error("변환 시간이 초과되었습니다. 잠시 후 다시 시도해주세요.");
           return;
         }
 
         setStatus("processing");
+        scheduleNext();
       } catch (e) {
+        inFlightRef.current = false;
         if (cancelled) return;
         setStatus("error");
-        if (intervalId) window.clearInterval(intervalId);
+        completedRef.current = true;
+        clearTimer();
         toast.error("변환 상태를 불러오지 못했습니다.");
       }
     };
 
     // 첫 조회
     poll();
-    // 이후 폴링
-    intervalId = window.setInterval(poll, POLL_INTERVAL_MS);
 
     return () => {
       cancelled = true;
-      if (intervalId) window.clearInterval(intervalId);
+      clearTimer();
+      inFlightRef.current = false;
+      completedRef.current = true;
     };
   }, [historyId]);
 
