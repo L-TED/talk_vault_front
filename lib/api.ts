@@ -443,6 +443,11 @@ export const uploadApi = {
 
     return { blob, fileName };
   },
+
+  // 히스토리 삭제 - DELETE /histories/:id
+  deleteHistory: async (id: string): Promise<void> => {
+    await apiClient.delete<void>(`/histories/${id}`);
+  },
 };
 
 export default apiClient;

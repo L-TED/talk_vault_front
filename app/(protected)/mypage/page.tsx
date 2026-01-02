@@ -62,7 +62,7 @@ const Mypage = () => {
     if (!confirm("정말 삭제하시겠습니까?")) return;
 
     try {
-      // TODO: 실제 DELETE API 구현 필요
+      await uploadApi.deleteHistory(id);
       setHistories((prev) => prev.filter((h) => h.id !== id));
     } catch (error) {
       console.error("삭제 실패:", error);
