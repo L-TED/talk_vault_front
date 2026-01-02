@@ -42,37 +42,39 @@ const persistUser = (user: Omit<User, "password" | "refreshToken"> | null) => {
   }
 };
 
-const initialUser = loadStoredUser();
+export const useAuthStore = create<AuthState>((set) => {
+  const storedUser = loadStoredUser();
 
-export const useAuthStore = create<AuthState>((set) => ({
-  user: initialUser,
-  isAuthenticated: Boolean(initialUser),
-  isLoading: false,
+  return {
+    user: storedUser,
+    isAuthenticated: Boolean(storedUser),
+    isLoading: false,
 
-  setUser: (user) => {
-    persistUser(user);
-    set({
-      user,
-      isAuthenticated: !!user,
-    });
-  },
+    setUser: (user) => {
+      persistUser(user);
+      set({
+        user,
+        isAuthenticated: !!user,
+      });
+    },
 
-  setLoading: (loading) => set({ isLoading: loading }),
+    setLoading: (loading) => set({ isLoading: loading }),
 
-  logout: () => {
-    persistUser(null);
-    set({
-      user: null,
-      isAuthenticated: false,
-    });
-  },
+    logout: () => {
+      persistUser(null);
+      set({
+        user: null,
+        isAuthenticated: false,
+      });
+    },
 
-  initialize: (user) => {
-    persistUser(user);
-    set({
-      user,
-      isAuthenticated: true,
-      isLoading: false,
-    });
-  },
-}));
+    initialize: (user) => {
+      persistUser(user);
+      set({
+        user,
+        isAuthenticated: true,
+        isLoading: false,
+      });
+    },
+  };
+});

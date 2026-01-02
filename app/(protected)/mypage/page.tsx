@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth.store";
 import { authApi, uploadApi } from "@/lib/api";
 import { clearAuth } from "@/lib/auth";
+import { toast } from "react-toastify";
 import { History } from "@/types/upload.types";
 import HistoryTable from "@/components/mypage/HistoryTable";
 import { useProfileImage } from "@/hooks/useCommon";
@@ -89,9 +90,11 @@ const Mypage = () => {
   const handleLogout = async () => {
     try {
       await authApi.logout();
+      toast.success("로그아웃되었습니다.");
     } catch (e) {
       // 로그아웃 API 실패 시에도 로컬 상태는 정리
       console.error("로그아웃 실패:", e);
+      toast.error("로그아웃에 실패했습니다. 다시 시도해주세요.");
     } finally {
       clearAuth();
       logout();
