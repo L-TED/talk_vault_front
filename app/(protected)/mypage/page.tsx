@@ -128,7 +128,7 @@ const Mypage = () => {
         <button
           type="button"
           onClick={() => router.push("/home")}
-          className="text-2xl font-extrabold text-amber-800"
+          className="text-[28px] font-extrabold text-amber-800 hover:cursor-pointer"
           aria-label="TalkVault 홈으로 이동"
         >
           TalkVault

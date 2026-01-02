@@ -25,6 +25,10 @@ body {
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
 
+button:not(:disabled):hover {
+  cursor: pointer;
+}
+
 @layer base {
   body {
     @apply font-bold text-amber-800;

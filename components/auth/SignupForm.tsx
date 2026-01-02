@@ -57,7 +57,7 @@ const SignupForm = () => {
 
           <div>
             <input
-              className="w-full px-4 py-3 border border-stone-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent text-amber-900 placeholder:text-amber-600"
+              className="w-full px-4 py-3 border border-stone-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent text-amber-900 placeholder:text-gray-400"
               placeholder="이메일을 입력하세요"
               type="email"
               value={email}
@@ -83,7 +83,7 @@ const SignupForm = () => {
           <div>
             <div className="relative">
               <input
-                className="w-full px-4 py-3 pr-16 border border-stone-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent text-amber-900 placeholder:text-amber-600"
+                className="w-full px-4 py-3 pr-16 border border-stone-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent text-amber-900 placeholder:text-gray-400"
                 placeholder="비밀번호를 입력하세요"
                 type={showPassword ? "text" : "password"}
                 value={password}
@@ -164,7 +164,7 @@ const SignupForm = () => {
           <div>
             <div className="relative">
               <input
-                className="w-full px-4 py-3 pr-16 border border-stone-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent text-amber-900 placeholder:text-amber-600"
+                className="w-full px-4 py-3 pr-16 border border-stone-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent text-amber-900 placeholder:text-gray-400"
                 placeholder="비밀번호를 재입력하세요"
                 type={showConfirmPassword ? "text" : "password"}
                 value={confirmPassword}

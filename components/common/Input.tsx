@@ -11,7 +11,7 @@ interface InputProps {
 const Input = ({ style, text, type = "text", pattern, required, value, onChange }: InputProps) => {
   return (
     <input
-      className={style}
+      className={`${style} placeholder:text-gray-400`}
       placeholder={text}
       type={type}
       pattern={pattern}

@@ -27,7 +27,9 @@ export default function HomePage() {
     <div className="min-h-screen bg-rose-50">
       {/* 헤더 */}
       <header className="fixed top-0 left-0 right-0 bg-rose-100 border-b border-rose-200 px-8 py-4 flex items-center justify-between z-10">
-        <div className="text-2xl font-extrabold text-amber-800">TalkVault</div>
+        <div className="text-[28px] font-extrabold text-amber-800 hover:cursor-pointer">
+          TalkVault
+        </div>
         <div
           className="w-10 h-10 rounded-full bg-rose-200 overflow-hidden cursor-pointer hover:ring-2 hover:ring-amber-300 transition-all"
           onClick={() => router.push("/mypage")}
@@ -79,7 +81,7 @@ export default function HomePage() {
               }}
             >
               <textarea
-                className="w-full h-64 px-6 py-4 border-2 border-stone-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent resize-none text-amber-900 placeholder:text-amber-600"
+                className="w-full h-64 px-6 py-4 border-2 border-stone-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent resize-none text-amber-900 placeholder:text-gray-400"
                 placeholder="여기에 대화 내용을 붙여넣거나 텍스트 파일을 드래그 해주세요!"
                 value={textContent}
                 onChange={handleTextChange}
