@@ -12,6 +12,14 @@ import { getAccessToken, setAccessToken, removeAccessToken } from "./auth";
 const DEV = process.env.NODE_ENV !== "production";
 let lastHistoriesStackLogAt = 0;
 
+const isHistoriesDebugEnabled = (): boolean => {
+  if (DEV) return true;
+  if (typeof window === "undefined") return false;
+  // Opt-in debug for production via DevTools console:
+  // localStorage.setItem('debug_histories','1')
+  return window.localStorage.getItem("debug_histories") === "1";
+};
+
 // 환경변수 검증 및 설정
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -58,8 +66,8 @@ apiClient.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
 
-    // DEV-only: trace callers of /histories to catch request loops
-    if (DEV) {
+    // Trace callers of /histories to catch request loops
+    if (isHistoriesDebugEnabled()) {
       try {
         const urlPath = String(config.url || "");
         if (urlPath.includes("/histories")) {
@@ -315,7 +323,7 @@ export const uploadApi = {
 
   // 히스토리 목록 조회 - GET /histories
   getHistories: async (): Promise<History[]> => {
-    if (process.env.NODE_ENV !== "production") {
+    if (isHistoriesDebugEnabled()) {
       try {
         const stack = new Error().stack;
         console.log("[HistoriesDebug] getHistories called", {
@@ -333,7 +341,7 @@ export const uploadApi = {
 
   // 특정 히스토리 조회 (목록에서 필터링)
   getHistoryById: async (id: string): Promise<History | null> => {
-    const histories = (await apiClient.get<History[]>("/histories")) as any as History[];
+    const histories = await uploadApi.getHistories();
     const history = histories.find((h: History) => h.id === id);
     return history || null;
   },
