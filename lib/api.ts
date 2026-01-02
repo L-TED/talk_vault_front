@@ -20,6 +20,20 @@ const isHistoriesDebugEnabled = (): boolean => {
   return window.localStorage.getItem("debug_histories") === "1";
 };
 
+const normalizeHistoryLike = <T extends Record<string, any>>(value: T): T => {
+  if (!value || typeof value !== "object") return value;
+
+  // Backend may return pdfUrl/excelUrl (public links) while frontend expects pdfPath/excelPath.
+  if (!value.pdfPath && typeof value.pdfUrl === "string") {
+    (value as any).pdfPath = value.pdfUrl;
+  }
+  if (!value.excelPath && typeof value.excelUrl === "string") {
+    (value as any).excelPath = value.excelUrl;
+  }
+
+  return value;
+};
+
 // 환경변수 검증 및 설정
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -126,6 +140,27 @@ apiClient.interceptors.response.use(
     // Some endpoints (e.g. file download) require full AxiosResponse to read headers.
     if (response?.config && (response.config as any).rawResponse) {
       return response;
+    }
+
+    // Normalize known response shapes for frontend compatibility.
+    try {
+      const urlPath = String(response?.config?.url || "");
+      const data = response?.data;
+
+      if (urlPath.includes("/histories")) {
+        if (Array.isArray(data)) {
+          return data.map((h) => normalizeHistoryLike(h));
+        }
+        if (data && typeof data === "object") {
+          return normalizeHistoryLike(data);
+        }
+      }
+
+      if (urlPath.includes("/upload") && data && typeof data === "object") {
+        return normalizeHistoryLike(data);
+      }
+    } catch {
+      // ignore normalization failures
     }
 
     return response.data;

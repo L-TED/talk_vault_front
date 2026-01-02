@@ -139,6 +139,22 @@ export default function ResultPage({ params }: PageProps) {
 
   const handleDownload = async () => {
     try {
+      const directUrl = history?.pdfPath || history?.excelPath;
+      if (directUrl && /^https?:\/\//i.test(directUrl)) {
+        const res = await fetch(directUrl);
+        if (!res.ok) throw new Error("direct download failed");
+        const blob = await res.blob();
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = history?.savedFileName || `${baseName}.bin`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+        return;
+      }
+
       const { blob, fileName } = await uploadApi.downloadFile(historyId);
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");

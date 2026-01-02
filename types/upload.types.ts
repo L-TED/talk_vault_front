@@ -6,6 +6,9 @@ export interface History {
   filePath: string;
   pdfPath?: string;
   excelPath?: string;
+  // Some deployments return public URLs instead of local paths
+  pdfUrl?: string;
+  excelUrl?: string;
   fileSize: number;
   userId: string;
   createdAt: Date;
@@ -23,6 +26,9 @@ export interface FileUploadResponse {
   savedFileName: string;
   pdfPath?: string;
   excelPath?: string;
+  // Some deployments return public URLs instead of local paths
+  pdfUrl?: string;
+  excelUrl?: string;
   fileSize: number;
   createdAt: Date;
 }
