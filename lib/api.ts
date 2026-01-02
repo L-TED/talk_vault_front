@@ -354,11 +354,60 @@ export const uploadApi = {
 
     // Do not set Content-Type manually; the browser will add the correct multipart boundary.
     const uploadUrl = `/upload?requestId=${encodeURIComponent(requestId)}`;
-    const response = (await apiClient.post<FileUploadResponse>(
-      uploadUrl,
-      formData
-    )) as any as FileUploadResponse;
-    return response;
+
+    const response = (await apiClient.post<FileUploadResponse>(uploadUrl, formData)) as any;
+
+    // Happy path: backend returns the created history in the response body.
+    if (response && typeof response === "object" && typeof (response as any).id === "string") {
+      return response as FileUploadResponse;
+    }
+
+    // Fallback: some deployments can successfully process the upload but respond with an
+    // empty/invalid body (proxy issues, serialization issues). In that case, fetch histories
+    // and find the newest matching record.
+    const fileName = data.file?.name;
+    const fileSize = data.file?.size;
+
+    const tryFindLatestMatch = async (): Promise<FileUploadResponse | null> => {
+      const histories = await uploadApi.getHistories();
+      const candidates = histories
+        .filter((h) => h && h.originalFileName === fileName && h.fileSize === fileSize)
+        .sort((a, b) => {
+          const ta = new Date((a as any).createdAt).getTime();
+          const tb = new Date((b as any).createdAt).getTime();
+          return tb - ta;
+        });
+
+      const latest = candidates[0];
+      return latest ? (latest as any as FileUploadResponse) : null;
+    };
+
+    const delays = [0, 400, 800, 1500, 2500];
+    for (const delayMs of delays) {
+      if (delayMs > 0) {
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+      }
+
+      try {
+        const found = await tryFindLatestMatch();
+        if (found) {
+          console.warn("[UploadDebug] upload response missing; recovered via /histories", {
+            requestId,
+            fileName,
+            fileSize,
+            recoveredId: (found as any).id,
+          });
+          return found;
+        }
+      } catch (e) {
+        // ignore and retry a couple times (eventual consistency)
+      }
+    }
+
+    // Still nothing: surface a helpful error.
+    throw new Error(
+      "업로드 요청은 처리되었을 수 있지만 응답을 확인하지 못했습니다. 마이페이지에서 변환 기록을 확인해주세요."
+    );
   },
 
   // 히스토리 목록 조회 - GET /histories
