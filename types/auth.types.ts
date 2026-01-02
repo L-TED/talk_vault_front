@@ -32,3 +32,10 @@ export interface SignupResponse {
   accessToken: string;
   user: Omit<User, "password" | "refreshToken">;
 }
+
+// 유저 정보 수정 요청 (현재 백엔드 DTO 기준)
+// - profileImage: Supabase에 업로드된 공개 URL을 전달
+export interface UpdateUserRequest {
+  email?: string;
+  profileImage?: string;
+}

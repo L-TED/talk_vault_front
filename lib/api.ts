@@ -4,6 +4,7 @@ import type {
   LoginResponse,
   SignupRequest,
   SignupResponse,
+  UpdateUserRequest,
 } from "@/types/auth.types";
 import type { FileUploadRequest, FileUploadResponse, History } from "@/types/upload.types";
 import { getAccessToken, setAccessToken, removeAccessToken } from "./auth";
@@ -220,19 +221,29 @@ export const authApi = {
 export const usersApi = {
   // 유저 프로필 조회 - GET /users/:id
   getUserById: async (id: string) => {
-    const response = await apiClient.get(`/users/${id}`);
+    const response = (await apiClient.get(`/users/${id}`)) as any;
+
+    // 백엔드 응답이 profileImage로 내려오는 경우(profileImageUrl로 정규화)
+    if (response && typeof response === "object") {
+      const profileImage = (response as any).profileImage;
+      const profileImageUrl = (response as any).profileImageUrl;
+      if (!profileImageUrl && typeof profileImage === "string") {
+        (response as any).profileImageUrl = profileImage;
+      }
+      delete (response as any).profileImage;
+    }
+
     return response;
   },
 
   // 유저 정보 수정 - PATCH /users/:id
-  updateUser: async (id: string, data: Partial<SignupRequest>) => {
-    const formData = new FormData();
-    if (data.email) formData.append("email", data.email);
-    if (data.password) formData.append("password", data.password);
-    if (data.profileImage) formData.append("profileImage", data.profileImage);
+  // 현재 백엔드는 JSON body로 email/profileImage(URL string)를 받습니다.
+  updateUser: async (id: string, data: UpdateUserRequest) => {
+    const payload: UpdateUserRequest = {};
+    if (typeof data.email === "string") payload.email = data.email;
+    if (typeof data.profileImage === "string") payload.profileImage = data.profileImage;
 
-    // Do not set Content-Type manually; the browser will add the correct multipart boundary.
-    const response = await apiClient.patch(`/users/${id}`, formData);
+    const response = await apiClient.patch(`/users/${id}`, payload);
     return response;
   },
 
