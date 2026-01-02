@@ -84,8 +84,8 @@ const FileUploader = ({ onUploadSuccess }: FileUploaderProps) => {
         originalFileName: response.originalFileName,
         savedFileName: response.savedFileName,
         fileSize: response.fileSize,
-        pdfPath: response.pdfPath,
-        excelPath: response.excelPath,
+        pdfUrl: response.pdfUrl,
+        excelUrl: response.excelUrl,
         createdAt: response.createdAt,
       });
 

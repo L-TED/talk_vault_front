@@ -20,26 +20,7 @@ export default function EnvChecker() {
     }
   }, []);
 
-  // 개발 환경에서만 표시
-  if (process.env.NODE_ENV === "production") {
-    return null;
-  }
-
-  return (
-    <div className="fixed bottom-4 left-4 bg-gray-900 text-white p-3 rounded-lg text-xs shadow-lg z-50 max-w-xs">
-      <div className="font-bold mb-1">🔧 환경 체크</div>
-      <div className="space-y-1">
-        <div>
-          <span className="text-gray-400">API URL:</span>
-          <div className={`font-mono ${apiUrl ? "text-green-400" : "text-red-400"}`}>
-            {apiUrl || "❌ 미설정 (localhost:8000 사용 중)"}
-          </div>
-        </div>
-        <div>
-          <span className="text-gray-400">ENV:</span>
-          <span className="font-mono text-blue-400 ml-1">{process.env.NODE_ENV}</span>
-        </div>
-      </div>
-    </div>
-  );
+  // UI로 드러나는 디버깅은 금지: 콘솔 로그만 남기고 렌더링은 하지 않습니다.
+  void apiUrl;
+  return null;
 }

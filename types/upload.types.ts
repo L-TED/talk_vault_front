@@ -3,10 +3,9 @@ export interface History {
   id: string;
   originalFileName: string;
   savedFileName: string;
-  filePath: string;
-  pdfPath?: string;
-  excelPath?: string;
-  // Some deployments return public URLs instead of local paths
+  // Backend may omit this in some deployments
+  filePath?: string;
+  // Public URLs (Supabase / CDN)
   pdfUrl?: string;
   excelUrl?: string;
   fileSize: number;
@@ -24,9 +23,7 @@ export interface FileUploadResponse {
   id: string;
   originalFileName: string;
   savedFileName: string;
-  pdfPath?: string;
-  excelPath?: string;
-  // Some deployments return public URLs instead of local paths
+  // Public URLs (Supabase / CDN)
   pdfUrl?: string;
   excelUrl?: string;
   fileSize: number;

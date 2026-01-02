@@ -31,8 +31,8 @@ export default function ResultPage({ params }: PageProps) {
 
   const availableFileLabel = useMemo(() => {
     if (!history) return "다운로드";
-    if (history.pdfPath) return "PDF 다운로드";
-    if (history.excelPath) return "Excel 다운로드";
+    if (history.pdfUrl) return "PDF 다운로드";
+    if (history.excelUrl) return "Excel 다운로드";
     return "다운로드";
   }, [history]);
 
@@ -94,8 +94,8 @@ export default function ResultPage({ params }: PageProps) {
 
         setHistory(data);
 
-        const pdfReady = Boolean(data.pdfPath);
-        const excelReady = Boolean(data.excelPath);
+        const pdfReady = Boolean(data.pdfUrl);
+        const excelReady = Boolean(data.excelUrl);
 
         if (pdfReady || excelReady) {
           setStatus("ready");
@@ -140,7 +140,7 @@ export default function ResultPage({ params }: PageProps) {
 
   const handleDownload = async () => {
     try {
-      const directUrl = history?.pdfPath || history?.excelPath;
+      const directUrl = history?.pdfUrl || history?.excelUrl;
       if (directUrl && /^https?:\/\//i.test(directUrl)) {
         const res = await fetch(directUrl);
         if (!res.ok) throw new Error("direct download failed");
@@ -172,7 +172,7 @@ export default function ResultPage({ params }: PageProps) {
 
   const isProcessing = status === "loading" || status === "processing";
   const canDownload =
-    (Boolean(history?.pdfPath) || Boolean(history?.excelPath)) && status === "ready";
+    (Boolean(history?.pdfUrl) || Boolean(history?.excelUrl)) && status === "ready";
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center">

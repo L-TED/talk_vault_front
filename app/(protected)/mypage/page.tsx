@@ -73,9 +73,9 @@ const Mypage = () => {
   const handleDownload = async (id: string) => {
     try {
       const target = histories.find((h) => h.id === id);
-      const directUrl = target?.pdfPath || target?.excelPath;
+      const directUrl = target?.pdfUrl || target?.excelUrl;
 
-      // If backend stores Supabase public URLs in pdfPath/excelPath, download directly.
+      // If backend stores Supabase public URLs, download directly.
       if (directUrl && /^https?:\/\//i.test(directUrl)) {
         const res = await fetch(directUrl);
         if (!res.ok) throw new Error("direct download failed");

@@ -23,18 +23,7 @@ export default function CookieDebugger() {
     console.groupEnd();
   }, []);
 
-  // Production에서는 숨김
-  if (process.env.NODE_ENV === "production") {
-    return null;
-  }
-
-  return (
-    <div className="fixed bottom-4 left-4 bg-orange-600 text-white p-4 rounded-lg text-xs font-mono z-[9999] max-w-md shadow-2xl">
-      <div className="font-bold mb-2">🍪 Current Cookies</div>
-      <div className="bg-black bg-opacity-50 p-2 rounded overflow-auto max-h-40">
-        {cookies || "No cookies found"}
-      </div>
-      <div className="mt-2 text-[10px] opacity-75">F12 Console에서 상세 확인</div>
-    </div>
-  );
+  // UI로 드러나는 디버깅은 금지: 콘솔 로그만 남기고 렌더링은 하지 않습니다.
+  void cookies;
+  return null;
 }

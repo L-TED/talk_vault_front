@@ -119,12 +119,12 @@ const HistoryTable = ({ histories, onDelete, onDownload, isLoading }: HistoryTab
 
                 {/* 변환 파일 태그 */}
                 <div className="flex gap-2 ml-13">
-                  {history.pdfPath && (
+                  {history.pdfUrl && (
                     <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-red-100 text-red-800">
                       PDF
                     </span>
                   )}
-                  {history.excelPath && (
+                  {history.excelUrl && (
                     <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-green-100 text-green-800">
                       EXCEL
                     </span>

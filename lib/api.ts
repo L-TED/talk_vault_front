@@ -23,13 +23,18 @@ const isHistoriesDebugEnabled = (): boolean => {
 const normalizeHistoryLike = <T extends Record<string, any>>(value: T): T => {
   if (!value || typeof value !== "object") return value;
 
-  // Backend may return pdfUrl/excelUrl (public links) while frontend expects pdfPath/excelPath.
-  if (!value.pdfPath && typeof value.pdfUrl === "string") {
-    (value as any).pdfPath = value.pdfUrl;
+  // Frontend is standardized on pdfUrl/excelUrl.
+  // If an older backend sends pdfPath/excelPath, map them to Url fields.
+  if (typeof (value as any).pdfUrl !== "string" && typeof (value as any).pdfPath === "string") {
+    (value as any).pdfUrl = (value as any).pdfPath;
   }
-  if (!value.excelPath && typeof value.excelUrl === "string") {
-    (value as any).excelPath = value.excelUrl;
+  if (typeof (value as any).excelUrl !== "string" && typeof (value as any).excelPath === "string") {
+    (value as any).excelUrl = (value as any).excelPath;
   }
+
+  // Remove legacy fields so app code doesn't accidentally rely on them.
+  if ("pdfPath" in (value as any)) delete (value as any).pdfPath;
+  if ("excelPath" in (value as any)) delete (value as any).excelPath;
 
   return value;
 };
