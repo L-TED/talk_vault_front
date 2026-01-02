@@ -80,7 +80,7 @@ export default function HomePage() {
             >
               <textarea
                 className="w-full h-64 px-6 py-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-gray-700"
-                placeholder="여기에 대화 내용을 붙여넣으세요..."
+                placeholder="여기에 대화 내용을 붙여넣거나 텍스트 파일을 드래그 해주세요!"
                 value={textContent}
                 onChange={handleTextChange}
                 disabled={isLoading}
@@ -163,7 +163,7 @@ export default function HomePage() {
                       d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"
                     />
                   </svg>
-                  <span>PDF & Excel 변환하기</span>
+                  <span>PDF 변환하기</span>
                 </>
               )}
             </button>
