@@ -176,25 +176,25 @@ export default function ResultPage({ params }: PageProps) {
     (Boolean(history?.pdfUrl) || Boolean(history?.excelUrl)) && status === "ready";
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center">
+    <div className="min-h-screen bg-rose-50 flex items-center justify-center">
       <div className="w-full max-w-xl px-8">
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-gray-800">변환 결과</h1>
-          <p className="mt-2 text-gray-600">
+          <h1 className="text-3xl font-bold text-stone-800">변환 결과</h1>
+          <p className="mt-2 text-stone-600">
             {isProcessing
               ? "변환 진행 중입니다. 잠시만 기다려주세요."
               : "다운로드가 준비되었습니다."}
           </p>
         </div>
 
-        <div className="p-5 border border-gray-200 rounded-lg bg-gray-50">
-          <div className="text-sm text-gray-700">
+        <div className="p-5 border border-rose-200 rounded-lg bg-white">
+          <div className="text-sm text-stone-700">
             <div className="flex justify-between">
-              <span className="text-gray-500">파일명</span>
+              <span className="text-stone-500">파일명</span>
               <span className="font-medium">{history?.originalFileName ?? "-"}</span>
             </div>
             <div className="mt-2 flex justify-between">
-              <span className="text-gray-500">상태</span>
+              <span className="text-stone-500">상태</span>
               <span className="font-medium">
                 {status === "ready" && "완료"}
                 {status === "processing" && "처리 중"}
@@ -207,7 +207,7 @@ export default function ResultPage({ params }: PageProps) {
 
           <div className="mt-6 space-y-3">
             <button
-              className="w-full px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+              className="w-full px-6 py-3 bg-amber-200 text-stone-800 font-semibold rounded-lg hover:bg-amber-300 transition-colors disabled:bg-stone-300 disabled:text-stone-500 disabled:cursor-not-allowed"
               onClick={handleDownload}
               disabled={!canDownload}
             >
@@ -215,7 +215,7 @@ export default function ResultPage({ params }: PageProps) {
             </button>
 
             <button
-              className="w-full px-6 py-3 bg-white text-gray-800 font-semibold border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors"
+              className="w-full px-6 py-3 bg-rose-50 text-stone-800 font-semibold border border-rose-200 rounded-lg hover:bg-rose-100 transition-colors"
               onClick={() => router.push("/mypage")}
             >
               마이페이지로 이동

@@ -122,13 +122,13 @@ const Mypage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-rose-50">
       {/* 상단 네비게이션 */}
-      <header className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 px-8 py-4 flex items-center justify-between z-10">
+      <header className="fixed top-0 left-0 right-0 bg-rose-100 border-b border-rose-200 px-8 py-4 flex items-center justify-between z-10">
         <button
           type="button"
           onClick={() => router.push("/home")}
-          className="text-2xl font-bold text-blue-600"
+          className="text-2xl font-bold text-stone-800"
           aria-label="TalkVault 홈으로 이동"
         >
           TalkVault
@@ -138,13 +138,13 @@ const Mypage = () => {
           <button
             type="button"
             onClick={handleLogout}
-            className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
+            className="px-4 py-2 text-sm font-medium text-stone-700 hover:text-stone-900 hover:bg-rose-200 rounded-md transition-colors"
           >
             로그아웃
           </button>
 
           <div
-            className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden"
+            className="w-10 h-10 rounded-full bg-rose-200 overflow-hidden"
             aria-label={user?.email ? `${user.email} 프로필` : "프로필"}
           >
             <img
@@ -167,8 +167,8 @@ const Mypage = () => {
       {/* 메인 컨텐츠 */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
         <div className="mb-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">변환 히스토리</h2>
-          <p className="text-gray-600">총 {histories.length}개의 변환 기록이 있습니다.</p>
+          <h2 className="text-2xl font-bold text-stone-900 mb-2">변환 히스토리</h2>
+          <p className="text-stone-600">총 {histories.length}개의 변환 기록이 있습니다.</p>
         </div>
 
         {/* 히스토리 테이블 */}

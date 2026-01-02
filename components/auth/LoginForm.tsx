@@ -8,16 +8,16 @@ const LoginForm = () => {
   const { email, password, isLoading, error, setEmail, setPassword, handleLogin } = useLoginForm();
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white">
+    <div className="min-h-screen flex items-center justify-center bg-rose-50">
       <div className="w-full max-w-md px-8">
         <div className="text-center mb-10">
-          <h1 className="text-3xl font-bold text-gray-800">로그인</h1>
+          <h1 className="text-3xl font-bold text-stone-800">로그인</h1>
         </div>
 
         <div className="space-y-5">
           <div>
             <Input
-              style="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              style="w-full px-4 py-3 border border-stone-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent text-stone-800 placeholder:text-stone-400"
               text="이메일을 입력하세요"
               type="email"
               value={email}
@@ -27,7 +27,7 @@ const LoginForm = () => {
 
           <div>
             <Input
-              style="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              style="w-full px-4 py-3 border border-stone-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent text-stone-800 placeholder:text-stone-400"
               text="비밀번호를 입력하세요"
               type="password"
               value={password}
@@ -35,11 +35,11 @@ const LoginForm = () => {
             />
           </div>
 
-          {error && <div className="text-red-500 text-sm text-center">{error}</div>}
+          {error && <div className="text-rose-600 text-sm text-center">{error}</div>}
 
           <div>
             <Button
-              style="w-full px-4 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+              style="w-full px-4 py-3 bg-amber-200 text-stone-800 font-semibold rounded-lg hover:bg-amber-300 transition-colors disabled:bg-stone-300 disabled:text-stone-500 disabled:cursor-not-allowed"
               text={isLoading ? "로그인 중..." : "로그인"}
               onClick={handleLogin}
               disabled={isLoading}
@@ -49,7 +49,7 @@ const LoginForm = () => {
           <div>
             <a href="/signup">
               <Button
-                style="w-full px-4 py-3 bg-white text-blue-600 font-semibold border-2 border-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
+                style="w-full px-4 py-3 bg-white text-stone-700 font-semibold border-2 border-amber-200 rounded-lg hover:bg-rose-100 transition-colors"
                 text="회원가입"
               />
             </a>
