@@ -98,7 +98,9 @@ const FileUploader = ({ onUploadSuccess }: FileUploaderProps) => {
 
       // 업로드 성공 시 콜백 실행
       if (onUploadSuccess) {
-        const resultKey = response.savedFileName || response.id;
+        // Always prefer History.id (UUID) because it's stable and used by /histories/:id/download.
+        // savedFileName can be environment-dependent and may contain characters that don't round-trip well in URLs.
+        const resultKey = response.id || response.savedFileName;
         if (resultKey) onUploadSuccess(resultKey);
       }
 

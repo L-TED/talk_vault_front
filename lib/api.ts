@@ -472,9 +472,42 @@ export const uploadApi = {
   getHistoryById: async (key: string): Promise<History | null> => {
     const histories = await uploadApi.getHistories();
 
-    const normalizeKey = (v: string) => v.replace(/\.(pdf|xlsx?)$/i, "");
-    const rawKey = String(key || "");
-    const normalizedKey = normalizeKey(rawKey);
+    const safeDecode = (v: string) => {
+      try {
+        return decodeURIComponent(v);
+      } catch {
+        return v;
+      }
+    };
+
+    const normalizeKey = (v: string) =>
+      String(v || "")
+        .trim()
+        .replace(/\.(pdf|xlsx?|txt)$/i, "");
+
+    const rawKey = String(key || "").trim();
+    const decodedKey = safeDecode(rawKey);
+
+    const candidateKeys = new Set<string>();
+    for (const v of [rawKey, decodedKey, normalizeKey(rawKey), normalizeKey(decodedKey)]) {
+      if (!v) continue;
+      candidateKeys.add(v);
+      candidateKeys.add(encodeURIComponent(v));
+    }
+
+    const extractBasename = (maybeUrl: string) => {
+      const input = String(maybeUrl || "");
+      if (!input) return "";
+      try {
+        const u = new URL(input);
+        const base = u.pathname.split("/").pop() || "";
+        return safeDecode(base);
+      } catch {
+        // not an absolute URL; handle relative or plain filenames
+        const base = input.split("?")[0].split("#")[0].split("/").pop() || "";
+        return safeDecode(base);
+      }
+    };
 
     const history = histories.find((h: History) => {
       const id = String((h as any).id || "");
@@ -482,15 +515,34 @@ export const uploadApi = {
       const pdfUrl = String((h as any).pdfUrl || "");
       const excelUrl = String((h as any).excelUrl || "");
 
-      return (
-        id === rawKey ||
-        id === normalizedKey ||
-        saved === rawKey ||
-        saved === normalizedKey ||
-        (rawKey.length > 0 && (pdfUrl.includes(rawKey) || excelUrl.includes(rawKey))) ||
-        (normalizedKey.length > 0 &&
-          (pdfUrl.includes(normalizedKey) || excelUrl.includes(normalizedKey)))
-      );
+      const pdfBase = extractBasename(pdfUrl);
+      const excelBase = extractBasename(excelUrl);
+
+      const fields = [
+        id,
+        normalizeKey(id),
+        saved,
+        normalizeKey(saved),
+        pdfBase,
+        normalizeKey(pdfBase),
+        excelBase,
+        normalizeKey(excelBase),
+      ].filter(Boolean);
+
+      for (const f of fields) {
+        if (candidateKeys.has(f)) return true;
+        // handle cases where the stored field is encoded
+        if (candidateKeys.has(safeDecode(f))) return true;
+      }
+
+      // Fallback: substring match (least strict) to tolerate URL encodings
+      for (const k of candidateKeys) {
+        if (k.length === 0) continue;
+        if (id.includes(k) || saved.includes(k) || pdfUrl.includes(k) || excelUrl.includes(k))
+          return true;
+      }
+
+      return false;
     });
 
     return history || null;

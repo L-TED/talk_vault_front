@@ -1,14 +1,13 @@
 # TalkVault (KakaoTalk Conversation Converter) - Frontend
 
-카카오톡 대화 텍스트(.txt)를 업로드/붙여넣기하여 PDF 및 Excel 파일로 변환하고, 변환 히스토리를 조회/다운로드하는 프론트엔드 애플리케이션입니다.
+카카오톡 대화 텍스트(.txt)를 업로드/붙여넣기해 PDF/Excel로 변환하고, 변환 이력 조회/다운로드/삭제까지 제공하는 Next.js 프론트엔드입니다.
 
-## ✅ 현재 구현 상태
+## ✅ What I Built
 
-- 로그인/회원가입 UI 및 폼 유효성 검사
-- Access Token 기반 API 호출 + 401 발생 시 Refresh로 자동 갱신(axios interceptor)
-- 대화 텍스트 붙여넣기 또는 `.txt` 파일 업로드 → 변환 요청
-- 결과 페이지에서 변환 상태 폴링 후 파일 다운로드
-- 마이페이지에서 변환 히스토리 목록 조회 및 다운로드
+- 인증: Access Token(`sessionStorage`) + 401 시 Refresh 재발급(axios interceptor)
+- 업로드: 텍스트 붙여넣기 또는 `.txt` 파일 업로드(파일 선택 + 드래그&드롭)
+- 결과: `/histories` 기반으로 결과 조회 후 다운로드
+- 마이페이지: 이력 목록 조회, 다운로드, 삭제(DELETE API 연동)
 
 ## 🧰 Tech Stack
 
@@ -26,7 +25,7 @@
 - `/signup` : 회원가입
 - `/home` : 변환 메인(텍스트/파일 입력)
 - `/result/[id]` : 변환 결과(상태 확인/다운로드)
-- `/mypage` : 히스토리 목록(다운로드, 삭제는 현재 로컬 처리)
+- `/mypage` : 히스토리 목록(다운로드/삭제)
 
 > 참고: `(protected)` 그룹 라우트가 존재하지만, 현재 `middleware.ts`에서 서버 사이드 보호를 강제하지 않습니다. 인증 실패 처리(401)는 클라이언트의 axios interceptor가 담당합니다.
 
@@ -50,9 +49,13 @@
   - `POST /auth/signup` (multipart/form-data)
   - `POST /auth/logout`
   - `POST /auth/refresh`
+- Upload/History
   - `POST /upload` (multipart/form-data)
-  - `GET /histories` (결과 페이지는 여기서 id로 검색/폴링)
-  - `GET /histories/:id/download` (파일 다운로드)
+  - `GET /histories`
+  - `GET /histories/:id/download` (서버가 URL이면 redirect 가능)
+  - `DELETE /histories/:id`
+
+> 데이터는 `pdfUrl/excelUrl`(public URL) 기반으로 처리합니다.
 
 ## 🚀 Getting Started
 
@@ -119,8 +122,9 @@ hooks/
 
 ## 📝 Notes / TODO
 
-- 마이페이지 삭제 버튼은 현재 로컬 상태에서만 제거(TODO: 실제 DELETE API 연동)
-- `/upload` 라우트는 현재 플레이스홀더
+- `/upload` 라우트는 현재 플레이스홀더(실제 업로드/변환은 `/home`에서 수행)
+- 결과 페이지는 `/histories` 목록에서 단건을 찾아 사용(백엔드 단건 조회 API 미사용)
+- 디버깅은 UI 오버레이 없이 콘솔 로그만 사용
 
 ## 📄 License
 
