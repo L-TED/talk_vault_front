@@ -7,13 +7,21 @@ import { useProfileImage } from "@/hooks/useCommon";
 export default function HomePage() {
   const router = useRouter();
   const profileImageUrl = useProfileImage();
-  const { file, textContent, isLoading, error, handleFileChange, handleTextChange, handleConvert } =
-    FileUploader({
-      onUploadSuccess: (historyId) => {
-        // 업로드 성공 시 결과 페이지로 이동 (변환 상태는 결과 페이지에서 비동기로 폴링)
-        router.push(`/result/${historyId}`);
-      },
-    });
+  const {
+    file,
+    textContent,
+    isLoading,
+    error,
+    handleFileChange,
+    handleFileDrop,
+    handleTextChange,
+    handleConvert,
+  } = FileUploader({
+    onUploadSuccess: (historyId) => {
+      // 업로드 성공 시 결과 페이지로 이동 (변환 상태는 결과 페이지에서 비동기로 폴링)
+      router.push(`/result/${historyId}`);
+    },
+  });
 
   return (
     <div className="min-h-screen bg-white">
@@ -58,7 +66,18 @@ export default function HomePage() {
 
           {/* 입력 영역 */}
           <div className="space-y-4">
-            <div className="relative">
+            <div
+              className="relative"
+              onDragOver={(e) => {
+                e.preventDefault();
+              }}
+              onDrop={(e) => {
+                e.preventDefault();
+                if (isLoading) return;
+                const dropped = e.dataTransfer?.files?.[0];
+                if (dropped) handleFileDrop(dropped);
+              }}
+            >
               <textarea
                 className="w-full h-64 px-6 py-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-gray-700"
                 placeholder="여기에 대화 내용을 붙여넣으세요..."

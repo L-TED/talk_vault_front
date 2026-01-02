@@ -16,27 +16,34 @@ const FileUploader = ({ onUploadSuccess }: FileUploaderProps) => {
 
   const debugPrefix = "[UploadDebug]";
 
+  const setSelectedFile = (selectedFile: File) => {
+    console.log(`${debugPrefix} file selected`, {
+      name: selectedFile.name,
+      type: selectedFile.type,
+      size: selectedFile.size,
+    });
+
+    // txt 파일만 허용
+    if (!selectedFile.name.endsWith(".txt")) {
+      setError("txt 파일만 업로드 가능합니다.");
+      return;
+    }
+
+    setFile(selectedFile);
+    setTextContent("");
+    setError(null);
+  };
+
   // 파일 선택 핸들러
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      const selectedFile = e.target.files[0];
-
-      console.log(`${debugPrefix} file selected`, {
-        name: selectedFile.name,
-        type: selectedFile.type,
-        size: selectedFile.size,
-      });
-
-      // txt 파일만 허용
-      if (!selectedFile.name.endsWith(".txt")) {
-        setError("txt 파일만 업로드 가능합니다.");
-        return;
-      }
-
-      setFile(selectedFile);
-      setTextContent("");
-      setError(null);
+      setSelectedFile(e.target.files[0]);
     }
+  };
+
+  // 드래그 앤 드롭 핸들러 (UI 변경 없이 입력영역에 drop만 추가)
+  const handleFileDrop = (selectedFile: File) => {
+    setSelectedFile(selectedFile);
   };
 
   // 텍스트 붙여넣기 핸들러
@@ -124,6 +131,7 @@ const FileUploader = ({ onUploadSuccess }: FileUploaderProps) => {
     isLoading,
     error,
     handleFileChange,
+    handleFileDrop,
     handleTextChange,
     handleConvert,
   };
