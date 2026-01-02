@@ -128,7 +128,7 @@ const Mypage = () => {
         <button
           type="button"
           onClick={() => router.push("/home")}
-          className="text-2xl font-bold text-stone-800"
+          className="text-2xl font-extrabold text-amber-800"
           aria-label="TalkVault 홈으로 이동"
         >
           TalkVault
@@ -138,7 +138,7 @@ const Mypage = () => {
           <button
             type="button"
             onClick={handleLogout}
-            className="px-4 py-2 text-sm font-medium text-stone-700 hover:text-stone-900 hover:bg-rose-200 rounded-md transition-colors"
+            className="px-4 py-2 text-sm font-bold text-amber-800 hover:text-amber-900 hover:bg-rose-200 rounded-md transition-colors"
           >
             로그아웃
           </button>
@@ -167,8 +167,8 @@ const Mypage = () => {
       {/* 메인 컨텐츠 */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
         <div className="mb-6">
-          <h2 className="text-2xl font-bold text-stone-900 mb-2">변환 히스토리</h2>
-          <p className="text-stone-600">총 {histories.length}개의 변환 기록이 있습니다.</p>
+          <h2 className="text-2xl font-extrabold text-amber-800 mb-2">변환 히스토리</h2>
+          <p className="text-amber-700">총 {histories.length}개의 변환 기록이 있습니다.</p>
         </div>
 
         {/* 히스토리 테이블 */}

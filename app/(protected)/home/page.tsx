@@ -27,7 +27,7 @@ export default function HomePage() {
     <div className="min-h-screen bg-rose-50">
       {/* 헤더 */}
       <header className="fixed top-0 left-0 right-0 bg-rose-100 border-b border-rose-200 px-8 py-4 flex items-center justify-between z-10">
-        <div className="text-2xl font-bold text-stone-800">TalkVault</div>
+        <div className="text-2xl font-extrabold text-amber-800">TalkVault</div>
         <div
           className="w-10 h-10 rounded-full bg-rose-200 overflow-hidden cursor-pointer hover:ring-2 hover:ring-amber-300 transition-all"
           onClick={() => router.push("/mypage")}
@@ -52,8 +52,8 @@ export default function HomePage() {
       <div className="flex items-center justify-center min-h-screen pt-20">
         <div className="w-full max-w-3xl px-8">
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-stone-800 mb-2">대화 내용을 변환하세요</h1>
-            <p className="text-stone-600">
+            <h1 className="text-4xl font-extrabold text-amber-800 mb-2">대화 내용을 변환하세요</h1>
+            <p className="text-amber-700">
               텍스트를 붙여넣거나 파일을 업로드하면 PDF와 Excel이 자동으로 생성됩니다
             </p>
           </div>
@@ -79,7 +79,7 @@ export default function HomePage() {
               }}
             >
               <textarea
-                className="w-full h-64 px-6 py-4 border-2 border-stone-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent resize-none text-stone-800 placeholder:text-stone-400"
+                className="w-full h-64 px-6 py-4 border-2 border-stone-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent resize-none text-amber-900 placeholder:text-amber-600"
                 placeholder="여기에 대화 내용을 붙여넣거나 텍스트 파일을 드래그 해주세요!"
                 value={textContent}
                 onChange={handleTextChange}
@@ -90,7 +90,7 @@ export default function HomePage() {
               <div className="absolute bottom-4 right-4">
                 <label
                   htmlFor="file-upload"
-                  className="cursor-pointer inline-flex items-center px-4 py-2 bg-amber-100 text-stone-700 rounded-lg hover:bg-amber-200 transition-colors text-sm font-medium"
+                  className="cursor-pointer inline-flex items-center px-4 py-2 bg-amber-50 text-amber-900 rounded-lg hover:bg-amber-100 transition-colors text-sm font-bold"
                 >
                   <svg
                     className="w-5 h-5 mr-2"
@@ -119,12 +119,12 @@ export default function HomePage() {
             </div>
 
             {file && (
-              <div className="flex items-center gap-2 text-sm text-stone-700 bg-amber-50 px-4 py-2 rounded-lg border border-amber-100">
+              <div className="flex items-center gap-2 text-sm text-amber-800 bg-amber-50 px-4 py-2 rounded-lg border border-amber-100">
                 <svg className="w-5 h-5 text-amber-700" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" />
                 </svg>
                 <span className="font-medium">{file.name}</span>
-                <span className="text-stone-500">({(file.size / 1024).toFixed(2)} KB)</span>
+                <span className="text-amber-700">({(file.size / 1024).toFixed(2)} KB)</span>
               </div>
             )}
 
@@ -132,7 +132,7 @@ export default function HomePage() {
             <button
               onClick={handleConvert}
               disabled={isLoading || (!file && !textContent)}
-              className="w-full px-6 py-4 bg-amber-200 text-stone-800 font-semibold rounded-lg hover:bg-amber-300 transition-colors disabled:bg-stone-300 disabled:text-stone-500 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full px-6 py-4 bg-amber-50 text-amber-900 font-bold rounded-lg hover:bg-amber-100 transition-colors disabled:bg-stone-200 disabled:text-amber-700 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isLoading ? (
                 <>

@@ -57,7 +57,7 @@ const HistoryTable = ({ histories, onDelete, onDownload, isLoading }: HistoryTab
     return (
       <div className="bg-white rounded-lg shadow p-12 text-center border border-rose-100">
         <svg
-          className="mx-auto h-12 w-12 text-stone-400"
+          className="mx-auto h-12 w-12 text-amber-700"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -69,8 +69,8 @@ const HistoryTable = ({ histories, onDelete, onDownload, isLoading }: HistoryTab
             d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
           />
         </svg>
-        <h3 className="mt-4 text-lg font-medium text-stone-900">변환 기록이 없습니다</h3>
-        <p className="mt-2 text-sm text-stone-500">파일을 업로드하여 변환을 시작해보세요.</p>
+        <h3 className="mt-4 text-lg font-extrabold text-amber-800">변환 기록이 없습니다</h3>
+        <p className="mt-2 text-sm text-amber-700">파일을 업로드하여 변환을 시작해보세요.</p>
       </div>
     );
   }
@@ -104,15 +104,15 @@ const HistoryTable = ({ histories, onDelete, onDownload, isLoading }: HistoryTab
 
                   {/* 파일 정보 */}
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-semibold text-stone-900 truncate">
+                    <h3 className="text-sm font-extrabold text-amber-900 truncate">
                       {history.originalFileName}
                     </h3>
                     <div className="flex items-center gap-2 mt-1">
-                      <span className="text-xs text-stone-500">
+                      <span className="text-xs text-amber-700">
                         {formatFileSize(history.fileSize)}
                       </span>
-                      <span className="text-stone-300">•</span>
-                      <span className="text-xs text-stone-500">
+                      <span className="text-amber-700">•</span>
+                      <span className="text-xs text-amber-700">
                         {formatDate(history.createdAt)}
                       </span>
                     </div>
@@ -122,12 +122,12 @@ const HistoryTable = ({ histories, onDelete, onDownload, isLoading }: HistoryTab
                 {/* 변환 파일 태그 */}
                 <div className="flex gap-2 ml-13">
                   {history.pdfUrl && (
-                    <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-rose-100 text-rose-800">
+                    <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-bold bg-rose-100 text-amber-800">
                       PDF
                     </span>
                   )}
                   {history.excelUrl && (
-                    <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-emerald-100 text-emerald-800">
+                    <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-bold bg-emerald-100 text-amber-800">
                       EXCEL
                     </span>
                   )}
@@ -138,7 +138,7 @@ const HistoryTable = ({ histories, onDelete, onDownload, isLoading }: HistoryTab
               <div className="flex items-center gap-2 ml-4 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button
                   onClick={() => onDownload(history.id)}
-                  className="p-2 text-stone-400 hover:text-amber-700 hover:bg-amber-50 rounded-md transition-colors"
+                  className="p-2 text-amber-700 hover:text-amber-900 hover:bg-amber-50 rounded-md transition-colors"
                   title="다운로드"
                 >
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -152,7 +152,7 @@ const HistoryTable = ({ histories, onDelete, onDownload, isLoading }: HistoryTab
                 </button>
                 <button
                   onClick={() => onDelete(history.id)}
-                  className="p-2 text-stone-400 hover:text-rose-700 hover:bg-rose-50 rounded-md transition-colors"
+                  className="p-2 text-amber-700 hover:text-amber-900 hover:bg-rose-50 rounded-md transition-colors"
                   title="삭제"
                 >
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
