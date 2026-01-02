@@ -16,14 +16,31 @@ interface AuthState {
 
 export const AUTH_USER_STORAGE_KEY = "auth_user";
 
+type StoredUser = Omit<User, "password" | "refreshToken"> & {
+  // 과거/다른 응답 형태 호환
+  profileImage?: string;
+};
+
+const normalizeStoredUser = (value: unknown): Omit<User, "password" | "refreshToken"> | null => {
+  if (!value || typeof value !== "object") return null;
+  const anyUser = value as StoredUser;
+  // profileImage -> profileImageUrl 정규화
+  if (!anyUser.profileImageUrl && typeof anyUser.profileImage === "string") {
+    (anyUser as any).profileImageUrl = anyUser.profileImage;
+  }
+  // 불필요 키 제거
+  delete (anyUser as any).profileImage;
+  return anyUser as Omit<User, "password" | "refreshToken">;
+};
+
 const loadStoredUser = (): Omit<User, "password" | "refreshToken"> | null => {
   if (typeof window === "undefined") return null;
   try {
     const raw = sessionStorage.getItem(AUTH_USER_STORAGE_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw);
-    if (!parsed || typeof parsed !== "object") return null;
-    return parsed as Omit<User, "password" | "refreshToken">;
+    const normalized = normalizeStoredUser(parsed);
+    return normalized;
   } catch {
     return null;
   }
@@ -36,7 +53,9 @@ const persistUser = (user: Omit<User, "password" | "refreshToken"> | null) => {
       sessionStorage.removeItem(AUTH_USER_STORAGE_KEY);
       return;
     }
-    sessionStorage.setItem(AUTH_USER_STORAGE_KEY, JSON.stringify(user));
+    // 저장 전에도 형태 정규화(이전 구조로 저장된 값이 남지 않게)
+    const normalized = normalizeStoredUser(user) || user;
+    sessionStorage.setItem(AUTH_USER_STORAGE_KEY, JSON.stringify(normalized));
   } catch {
     // ignore storage errors
   }
