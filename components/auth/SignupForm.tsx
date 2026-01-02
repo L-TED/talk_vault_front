@@ -200,7 +200,7 @@ const SignupForm = () => {
               type="file"
               accept="image/*"
               onChange={handleFileChange}
-              className="w-full px-4 py-3 border border-stone-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-amber-50 file:text-amber-900 hover:file:bg-amber-100"
+              className="w-full px-4 py-3 border border-stone-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-amber-100 file:text-amber-900 hover:file:bg-amber-200"
             />
           </div>
 
@@ -208,7 +208,7 @@ const SignupForm = () => {
             <button
               onClick={handleSignup}
               disabled={isLoading}
-              className="w-full px-4 py-3 bg-amber-50 text-amber-900 font-bold rounded-lg hover:bg-amber-100 transition-colors disabled:bg-stone-200 disabled:text-amber-700 disabled:cursor-not-allowed"
+              className="w-full px-4 py-3 bg-amber-100 text-amber-900 font-bold rounded-lg hover:bg-amber-200 transition-colors disabled:bg-stone-200 disabled:text-amber-700 disabled:cursor-not-allowed"
             >
               {isLoading ? "회원가입 중..." : "회원가입"}
             </button>

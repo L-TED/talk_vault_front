@@ -39,7 +39,7 @@ const LoginForm = () => {
 
           <div>
             <Button
-              style="w-full px-4 py-3 bg-amber-50 text-amber-900 font-bold rounded-lg hover:bg-amber-100 transition-colors disabled:bg-stone-200 disabled:text-amber-700 disabled:cursor-not-allowed"
+              style="w-full px-4 py-3 bg-amber-100 text-amber-900 font-bold rounded-lg hover:bg-amber-200 transition-colors disabled:bg-stone-200 disabled:text-amber-700 disabled:cursor-not-allowed"
               text={isLoading ? "로그인 중..." : "로그인"}
               onClick={handleLogin}
               disabled={isLoading}
