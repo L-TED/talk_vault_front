@@ -90,8 +90,9 @@ const FileUploader = ({ onUploadSuccess }: FileUploaderProps) => {
       });
 
       // 업로드 성공 시 콜백 실행
-      if (onUploadSuccess && response.id) {
-        onUploadSuccess(response.id);
+      if (onUploadSuccess) {
+        const resultKey = response.savedFileName || response.id;
+        if (resultKey) onUploadSuccess(resultKey);
       }
 
       // 상태 초기화

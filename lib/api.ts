@@ -392,7 +392,18 @@ export const uploadApi = {
     const history = histories.find((h: History) => {
       const id = String((h as any).id || "");
       const saved = String((h as any).savedFileName || "");
-      return id === rawKey || id === normalizedKey || saved === rawKey || saved === normalizedKey;
+      const pdfUrl = String((h as any).pdfUrl || "");
+      const excelUrl = String((h as any).excelUrl || "");
+
+      return (
+        id === rawKey ||
+        id === normalizedKey ||
+        saved === rawKey ||
+        saved === normalizedKey ||
+        (rawKey.length > 0 && (pdfUrl.includes(rawKey) || excelUrl.includes(rawKey))) ||
+        (normalizedKey.length > 0 &&
+          (pdfUrl.includes(normalizedKey) || excelUrl.includes(normalizedKey)))
+      );
     });
 
     return history || null;
