@@ -291,6 +291,18 @@ export const uploadApi = {
 
   // 히스토리 목록 조회 - GET /histories
   getHistories: async (): Promise<History[]> => {
+    if (process.env.NODE_ENV !== "production") {
+      try {
+        const stack = new Error().stack;
+        console.log("[HistoriesDebug] getHistories called", {
+          at: new Date().toISOString(),
+          stack,
+        });
+      } catch {
+        // ignore debug failures
+      }
+    }
+
     const response = (await apiClient.get<History[]>("/histories")) as any as History[];
     return response;
   },

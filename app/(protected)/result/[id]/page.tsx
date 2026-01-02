@@ -21,8 +21,8 @@ export default function ResultPage({ params }: PageProps) {
 
   const inFlightRef = useRef(false);
   const timeoutIdRef = useRef<number | null>(null);
-  const startedAtRef = useRef<number>(0);
   const completedRef = useRef(false);
+  const attemptRef = useRef(0);
 
   const baseName = useMemo(() => {
     const original = history?.originalFileName || "converted";
@@ -39,10 +39,11 @@ export default function ResultPage({ params }: PageProps) {
   useEffect(() => {
     let cancelled = false;
 
-    const POLL_INTERVAL_MS = 2000;
-    const TIMEOUT_MS = 60_000;
-    startedAtRef.current = Date.now();
+    // Backend implementation generates PDF/Excel synchronously during /upload.
+    // If paths are missing, endless polling won't help; do a few short retries then stop.
+    const RETRY_DELAYS_MS = [0, 1000, 2000, 4000];
     completedRef.current = false;
+    attemptRef.current = 0;
 
     const clearTimer = () => {
       if (timeoutIdRef.current) {
@@ -51,11 +52,11 @@ export default function ResultPage({ params }: PageProps) {
       }
     };
 
-    const scheduleNext = () => {
+    const scheduleNext = (delayMs: number) => {
       clearTimer();
       timeoutIdRef.current = window.setTimeout(() => {
         poll();
-      }, POLL_INTERVAL_MS);
+      }, delayMs);
     };
 
     const poll = async () => {
@@ -63,7 +64,9 @@ export default function ResultPage({ params }: PageProps) {
         if (cancelled || completedRef.current) return;
         if (inFlightRef.current) {
           // Avoid overlapping requests (e.g. StrictMode double-mount or slow network)
-          scheduleNext();
+          const nextDelay =
+            RETRY_DELAYS_MS[Math.min(attemptRef.current + 1, RETRY_DELAYS_MS.length - 1)];
+          scheduleNext(nextDelay);
           return;
         }
 
@@ -75,8 +78,16 @@ export default function ResultPage({ params }: PageProps) {
         if (cancelled) return;
 
         if (!data) {
+          attemptRef.current += 1;
+          if (attemptRef.current >= RETRY_DELAYS_MS.length) {
+            completedRef.current = true;
+            clearTimer();
+            setStatus("error");
+            toast.error("변환 상태를 불러오지 못했습니다.");
+            return;
+          }
           setStatus("processing");
-          scheduleNext();
+          scheduleNext(RETRY_DELAYS_MS[attemptRef.current]);
           return;
         }
 
@@ -93,16 +104,18 @@ export default function ResultPage({ params }: PageProps) {
           return;
         }
 
-        if (Date.now() - startedAtRef.current > TIMEOUT_MS) {
-          setStatus("timeout");
+        // No output paths: retry a few times for eventual consistency, then stop.
+        attemptRef.current += 1;
+        if (attemptRef.current >= RETRY_DELAYS_MS.length) {
           completedRef.current = true;
           clearTimer();
-          toast.error("변환 시간이 초과되었습니다. 잠시 후 다시 시도해주세요.");
+          setStatus("error");
+          toast.error("변환 상태를 불러오지 못했습니다.");
           return;
         }
 
         setStatus("processing");
-        scheduleNext();
+        scheduleNext(RETRY_DELAYS_MS[attemptRef.current]);
       } catch (e) {
         inFlightRef.current = false;
         if (cancelled) return;
@@ -114,7 +127,7 @@ export default function ResultPage({ params }: PageProps) {
     };
 
     // 첫 조회
-    poll();
+    scheduleNext(RETRY_DELAYS_MS[0]);
 
     return () => {
       cancelled = true;
