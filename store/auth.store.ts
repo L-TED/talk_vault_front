@@ -14,12 +14,12 @@ interface AuthState {
   initialize: (user: Omit<User, "password" | "refreshToken">) => void;
 }
 
-const USER_STORAGE_KEY = "auth_user";
+export const AUTH_USER_STORAGE_KEY = "auth_user";
 
 const loadStoredUser = (): Omit<User, "password" | "refreshToken"> | null => {
   if (typeof window === "undefined") return null;
   try {
-    const raw = sessionStorage.getItem(USER_STORAGE_KEY);
+    const raw = sessionStorage.getItem(AUTH_USER_STORAGE_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw);
     if (!parsed || typeof parsed !== "object") return null;
@@ -33,10 +33,10 @@ const persistUser = (user: Omit<User, "password" | "refreshToken"> | null) => {
   if (typeof window === "undefined") return;
   try {
     if (!user) {
-      sessionStorage.removeItem(USER_STORAGE_KEY);
+      sessionStorage.removeItem(AUTH_USER_STORAGE_KEY);
       return;
     }
-    sessionStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
+    sessionStorage.setItem(AUTH_USER_STORAGE_KEY, JSON.stringify(user));
   } catch {
     // ignore storage errors
   }

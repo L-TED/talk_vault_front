@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Jua, Poor_Story, Nanum_Gothic } from "next/font/goog
 import "./globals.css";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
+import AuthHydrator from "@/components/common/AuthHydrator";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -47,6 +48,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${jua.variable} ${poorStory.variable} ${nanumGothic.variable} antialiased`}
       >
+        <AuthHydrator />
         {children}
         <ToastContainer
           position="top-right"
