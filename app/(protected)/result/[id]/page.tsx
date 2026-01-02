@@ -14,7 +14,7 @@ type Status = "loading" | "processing" | "ready" | "timeout" | "error";
 
 export default function ResultPage({ params }: PageProps) {
   const router = useRouter();
-  const historyId = params.id;
+  const historyKey = params.id;
 
   const [history, setHistory] = useState<History | null>(null);
   const [status, setStatus] = useState<Status>("loading");
@@ -72,7 +72,7 @@ export default function ResultPage({ params }: PageProps) {
         }
 
         inFlightRef.current = true;
-        const data = await uploadApi.getHistoryById(historyId);
+        const data = await uploadApi.getHistoryById(historyKey);
 
         inFlightRef.current = false;
 
@@ -136,7 +136,7 @@ export default function ResultPage({ params }: PageProps) {
       inFlightRef.current = false;
       completedRef.current = true;
     };
-  }, [historyId]);
+  }, [historyKey]);
 
   const handleDownload = async () => {
     try {
@@ -156,7 +156,8 @@ export default function ResultPage({ params }: PageProps) {
         return;
       }
 
-      const { blob, fileName } = await uploadApi.downloadFile(historyId);
+      const resolvedId = history?.id || historyKey;
+      const { blob, fileName } = await uploadApi.downloadFile(resolvedId);
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;

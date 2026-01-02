@@ -380,9 +380,21 @@ export const uploadApi = {
   },
 
   // 특정 히스토리 조회 (목록에서 필터링)
-  getHistoryById: async (id: string): Promise<History | null> => {
+  // NOTE: 일부 백엔드/배포에서는 /upload 응답의 식별자와 /histories의 id가 다를 수 있어
+  // result 라우트 파라미터가 History.id 또는 History.savedFileName 둘 다일 수 있습니다.
+  getHistoryById: async (key: string): Promise<History | null> => {
     const histories = await uploadApi.getHistories();
-    const history = histories.find((h: History) => h.id === id);
+
+    const normalizeKey = (v: string) => v.replace(/\.(pdf|xlsx?)$/i, "");
+    const rawKey = String(key || "");
+    const normalizedKey = normalizeKey(rawKey);
+
+    const history = histories.find((h: History) => {
+      const id = String((h as any).id || "");
+      const saved = String((h as any).savedFileName || "");
+      return id === rawKey || id === normalizedKey || saved === rawKey || saved === normalizedKey;
+    });
+
     return history || null;
   },
 
