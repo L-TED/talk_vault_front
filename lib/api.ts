@@ -62,6 +62,9 @@ if (!API_BASE_URL && typeof window !== "undefined") {
 const apiClient = axios.create({
   baseURL: API_BASE_URL || "https://talk-vault-back.onrender.com",
   withCredentials: true,
+  // Backend may take a few seconds to parse + generate + upload.
+  // Give enough room to avoid client-side timeouts under slow networks.
+  timeout: 30000,
 });
 
 // Request 인터셉터: Access Token 자동 추가
@@ -334,6 +337,8 @@ export const uploadApi = {
     // Ensure filename is present for multipart parsers
     formData.append("file", data.file, data.file.name);
 
+    const startedAtMs = Date.now();
+
     const requestId =
       typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
         ? crypto.randomUUID()
@@ -355,59 +360,92 @@ export const uploadApi = {
     // Do not set Content-Type manually; the browser will add the correct multipart boundary.
     const uploadUrl = `/upload?requestId=${encodeURIComponent(requestId)}`;
 
-    const response = (await apiClient.post<FileUploadResponse>(uploadUrl, formData)) as any;
-
-    // Happy path: backend returns the created history in the response body.
-    if (response && typeof response === "object" && typeof (response as any).id === "string") {
-      return response as FileUploadResponse;
-    }
-
-    // Fallback: some deployments can successfully process the upload but respond with an
-    // empty/invalid body (proxy issues, serialization issues). In that case, fetch histories
-    // and find the newest matching record.
     const fileName = data.file?.name;
     const fileSize = data.file?.size;
 
-    const tryFindLatestMatch = async (): Promise<FileUploadResponse | null> => {
-      const histories = await uploadApi.getHistories();
-      const candidates = histories
-        .filter((h) => h && h.originalFileName === fileName && h.fileSize === fileSize)
-        .sort((a, b) => {
-          const ta = new Date((a as any).createdAt).getTime();
-          const tb = new Date((b as any).createdAt).getTime();
-          return tb - ta;
-        });
+    const recoverFromHistories = async (reason: string): Promise<FileUploadResponse | null> => {
+      const tryFindLatestMatch = async (): Promise<FileUploadResponse | null> => {
+        const histories = await uploadApi.getHistories();
+        const candidates = histories
+          .filter((h) => {
+            if (!h) return false;
+            if (h.originalFileName !== fileName) return false;
+            if (h.fileSize !== fileSize) return false;
 
-      const latest = candidates[0];
-      return latest ? (latest as any as FileUploadResponse) : null;
+            // createdAt comes from backend; tolerate string/Date.
+            const createdAtMs = new Date((h as any).createdAt).getTime();
+            // Only consider items created around this upload attempt (avoid picking old duplicates).
+            return createdAtMs >= startedAtMs - 2 * 60 * 1000;
+          })
+          .sort((a, b) => {
+            const ta = new Date((a as any).createdAt).getTime();
+            const tb = new Date((b as any).createdAt).getTime();
+            return tb - ta;
+          });
+
+        const latest = candidates[0];
+        return latest ? (latest as any as FileUploadResponse) : null;
+      };
+
+      const delays = [0, 400, 800, 1500, 2500, 4000];
+      for (const delayMs of delays) {
+        if (delayMs > 0) {
+          await new Promise((resolve) => setTimeout(resolve, delayMs));
+        }
+
+        try {
+          const found = await tryFindLatestMatch();
+          if (found) {
+            console.warn("[UploadDebug] recovered upload via /histories", {
+              reason,
+              requestId,
+              fileName,
+              fileSize,
+              recoveredId: (found as any).id,
+              elapsedMs: Date.now() - startedAtMs,
+            });
+            return found;
+          }
+        } catch {
+          // ignore and retry (eventual consistency)
+        }
+      }
+
+      return null;
     };
 
-    const delays = [0, 400, 800, 1500, 2500];
-    for (const delayMs of delays) {
-      if (delayMs > 0) {
-        await new Promise((resolve) => setTimeout(resolve, delayMs));
+    try {
+      const response = (await apiClient.post<FileUploadResponse>(uploadUrl, formData)) as any;
+
+      // Happy path: backend returns the created history in the response body.
+      if (response && typeof response === "object" && typeof (response as any).id === "string") {
+        return response as FileUploadResponse;
       }
 
-      try {
-        const found = await tryFindLatestMatch();
-        if (found) {
-          console.warn("[UploadDebug] upload response missing; recovered via /histories", {
-            requestId,
-            fileName,
-            fileSize,
-            recoveredId: (found as any).id,
-          });
-          return found;
-        }
-      } catch (e) {
-        // ignore and retry a couple times (eventual consistency)
+      // Some deployments can successfully process the upload but respond with an empty/invalid body.
+      const recovered = await recoverFromHistories("empty-or-invalid-response-body");
+      if (recovered) return recovered;
+
+      throw new Error(
+        "업로드 요청은 처리되었을 수 있지만 응답을 확인하지 못했습니다. 마이페이지에서 변환 기록을 확인해주세요."
+      );
+    } catch (e) {
+      const anyErr = e as any;
+      const isNetworkLikeFailure =
+        !anyErr?.response ||
+        anyErr?.code === "ECONNABORTED" ||
+        String(anyErr?.message || "")
+          .toLowerCase()
+          .includes("network");
+
+      // If the connection dropped or timed out, the server may still have finished processing.
+      if (isNetworkLikeFailure) {
+        const recovered = await recoverFromHistories("network-or-timeout");
+        if (recovered) return recovered;
       }
+
+      throw e;
     }
-
-    // Still nothing: surface a helpful error.
-    throw new Error(
-      "업로드 요청은 처리되었을 수 있지만 응답을 확인하지 못했습니다. 마이페이지에서 변환 기록을 확인해주세요."
-    );
   },
 
   // 히스토리 목록 조회 - GET /histories
